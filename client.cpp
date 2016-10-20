@@ -151,7 +151,8 @@ void Client::Bresenham(int x1, int y1, int x2, int y2, unsigned int color1, unsi
     int two_dx = 2*dx;
     int two_dy = 2*dy;
 
-     int r1,g1,b1,r2,b2,g2;
+    int r1,g1,b1,r2,b2,g2,rounded_r,rounded_g,rounded_b;
+
     r1 = (color1>>16)& 0xff;
     g1 = (color1>>8) & 0xff;
     b1 = color1 & 0xff;
@@ -159,12 +160,12 @@ void Client::Bresenham(int x1, int y1, int x2, int y2, unsigned int color1, unsi
     g2 = (color2>>8) & 0xff;
     b2 = color2 & 0xff;
 
+
     unsigned int current_Color;
 
 
 
-    QTextStream(stdout)<<"r1= "<<r1<<" g1= "<<g1<<" b1= "<<b1<<endl;
-    QTextStream(stdout)<<"r2= "<<r2<<" g2= "<<g2<<" b2= "<<b2<<endl;
+
 
     //QTextStream(stdout)<<"(x1,y1)=("<<x1<<","<<y1<<"),(x2,y2)=("<<x2<<","<<y2<<")"<<endl;
     //int y = y1;
@@ -180,9 +181,19 @@ void Client::Bresenham(int x1, int y1, int x2, int y2, unsigned int color1, unsi
             int y = y1;
             if(x2>x1){
                 QTextStream(stdout)<<"1st cond. "<<endl;
-                float dr = (r2-r1)/(x2-x1);
-                float dg = (g2-g1)/(x2-x1);
-                float db = (b2-b1)/(x2-x1);
+                QTextStream(stdout)<<"r1= "<<r1<<" g1= "<<g1<<" b1= "<<b1<<endl;
+                QTextStream(stdout)<<"r2= "<<r2<<" g2= "<<g2<<" b2= "<<b2<<endl;
+                int ddx = x2 - x1;
+                float dr = r2-r1;
+                dr = dr/ddx;
+                float dg = g2-g1;
+                dg = dg/ddx;
+                float db = b2-b1;
+                db = db/ddx;
+
+                float temp_r = r1;
+                float temp_g = g1;
+                float temp_b = b1;
                 QTextStream(stdout)<<"dr= "<<dr<<" dg= "<<dg<<" db= "<<db<<endl;
                 // Traverse along x+
                 for(int x=x1+1; x<=x2; x++){
@@ -194,20 +205,32 @@ void Client::Bresenham(int x1, int y1, int x2, int y2, unsigned int color1, unsi
                     else{
                         err = err+two_dy;
                     }
-                    r1 = round(r1+dr);
-                    g1 = round(g1+dg);
-                    b1 = round(b1+db);
-                    QTextStream(stdout)<<"r1= "<<r1<<" g1= "<<g1<<" b1= "<<b1<<endl;
-                    current_Color = (0xff<<24) + ((r1 & 0xff)<<16) + ((g1 & 0xff)<<8) + (b1 & 0xff);
+                    temp_r = temp_r+dr;
+                    temp_g = temp_g+dg;
+                    temp_b = temp_b+db;
+                    rounded_r = round(temp_r);
+                    rounded_g = round(temp_g);
+                    rounded_b = round(temp_b);
+
+                    QTextStream(stdout)<<"temp_r= "<<temp_r<<" temp_g= "<<temp_g<<" temp_b= "<<temp_b<<endl;
+                    current_Color = (0xff<<24) + ((rounded_r & 0xff)<<16) + ((rounded_g & 0xff)<<8) + (rounded_b & 0xff);
                     //QTextStream(stdout)<<"1st Drawn"<<endl;
                     drawable->setPixel(x,y,current_Color);
                 }
             }
             else{
                 QTextStream(stdout)<<"2nd cond. "<<endl;
-                float dr = (r2-r1)/(x1-x2);
-                float dg = (g2-g1)/(x1-x2);
-                float db = (b2-b1)/(x1-x2);
+                int ddx = x1 - x2;
+                float dr = r2-r1;
+                dr = dr/ddx;
+                float dg = g2-g1;
+                dg = dg/ddx;
+                float db = b2-b1;
+                db = db/ddx;
+
+                float temp_r = r1;
+                float temp_g = g1;
+                float temp_b = b1;
                 // Traverse along x-
                 for(int x=x1-1; x>=x2; x--){
                     if (err>=0){
@@ -218,10 +241,14 @@ void Client::Bresenham(int x1, int y1, int x2, int y2, unsigned int color1, unsi
                     else{
                         err = err+two_dy;
                     }
-                    r1 = round(r1+dr);
-                    g1 = round(g1+dg);
-                    b1 = round(b1+db);
-                    current_Color = (0xff<<24) + ((r1 & 0xff)<<16) + ((g1 & 0xff)<<8) + (b1 & 0xff);
+                    temp_r = temp_r+dr;
+                    temp_g = temp_g+dg;
+                    temp_b = temp_b+db;
+                    rounded_r = round(temp_r);
+                    rounded_g = round(temp_g);
+                    rounded_b = round(temp_b);
+
+                    current_Color = (0xff<<24) + ((rounded_r & 0xff)<<16) + ((rounded_g & 0xff)<<8) + (rounded_b & 0xff);
                     //QTextStream(stdout)<<"1st Drawn"<<endl;
                     drawable->setPixel(x,y,current_Color);
                 }
@@ -230,9 +257,17 @@ void Client::Bresenham(int x1, int y1, int x2, int y2, unsigned int color1, unsi
         else{
             if(x2>x1){
                 QTextStream(stdout)<<"3rd cond. "<<endl;
-                float dr = (r2-r1)/(x2-x1);
-                float dg = (g2-g1)/(x2-x1);
-                float db = (b2-b1)/(x2-x1);
+                int ddx = x2 - x1;
+                float dr = r2-r1;
+                dr = dr/ddx;
+                float dg = g2-g1;
+                dg = dg/ddx;
+                float db = b2-b1;
+                db = db/ddx;
+
+                float temp_r = r1;
+                float temp_g = g1;
+                float temp_b = b1;
                 //QTextStream(stdout)<<"2nd cond. "<<endl;
                 int y = y1;
                 // Traverse along x+
@@ -245,10 +280,14 @@ void Client::Bresenham(int x1, int y1, int x2, int y2, unsigned int color1, unsi
                     else{
                         err = err+two_dy;
                     }
-                    r1 = round(r1+dr);
-                    g1 = round(g1+dg);
-                    b1 = round(b1+db);
-                    current_Color = (0xff<<24) + ((r1 & 0xff)<<16) + ((g1 & 0xff)<<8) + (b1 & 0xff);
+                    temp_r = temp_r+dr;
+                    temp_g = temp_g+dg;
+                    temp_b = temp_b+db;
+                    rounded_r = round(temp_r);
+                    rounded_g = round(temp_g);
+                    rounded_b = round(temp_b);
+
+                    current_Color = (0xff<<24) + ((rounded_r & 0xff)<<16) + ((rounded_g & 0xff)<<8) + (rounded_b & 0xff);
                     //QTextStream(stdout)<<"(x,y)= ("<<x<<","<<y<<")"<<endl;
                     //QTextStream(stdout)<<"1st Drawn"<<endl;
                     drawable->setPixel(x,y,current_Color);
@@ -256,9 +295,17 @@ void Client::Bresenham(int x1, int y1, int x2, int y2, unsigned int color1, unsi
             }
             else{
                 QTextStream(stdout)<<"4th cond. "<<endl;
-                float dr = (r2-r1)/(x1-x2);
-                float dg = (g2-g1)/(x1-x2);
-                float db = (b2-b1)/(x1-x2);
+                int ddx = x1 - x2;
+                float dr = r2-r1;
+                dr = dr/ddx;
+                float dg = g2-g1;
+                dg = dg/ddx;
+                float db = b2-b1;
+                db = db/ddx;
+
+                float temp_r = r1;
+                float temp_g = g1;
+                float temp_b = b1;
                 int y = y1;
                 // Traverse along x-
                 for(int x=x1-1; x>=x2; x--){
@@ -270,10 +317,14 @@ void Client::Bresenham(int x1, int y1, int x2, int y2, unsigned int color1, unsi
                     else{
                         err = err+two_dy;
                     }
-                    r1 = round(r1+dr);
-                    g1 = round(g1+dg);
-                    b1 = round(b1+db);
-                    current_Color = (0xff<<24) + ((r1 & 0xff)<<16) + ((g1 & 0xff)<<8) + (b1 & 0xff);
+                    temp_r = temp_r+dr;
+                    temp_g = temp_g+dg;
+                    temp_b = temp_b+db;
+                    rounded_r = round(temp_r);
+                    rounded_g = round(temp_g);
+                    rounded_b = round(temp_b);
+
+                    current_Color = (0xff<<24) + ((rounded_r & 0xff)<<16) + ((rounded_g & 0xff)<<8) + (rounded_b & 0xff);
                     //QTextStream(stdout)<<"(x,y)= ("<<x<<","<<y<<")"<<endl;
                     //QTextStream(stdout)<<"1st Drawn"<<endl;
                     drawable->setPixel(x,y,current_Color);
@@ -287,7 +338,18 @@ void Client::Bresenham(int x1, int y1, int x2, int y2, unsigned int color1, unsi
         if(x2>x1){
                 if(y2>y1){
                     QTextStream(stdout)<<"5th cond. "<<endl;
-                    //QTextStream(stdout)<<"3rd cond. "<<endl;
+                    int ddy = y2 - y1;
+                    float dr = r2-r1;
+                    dr = dr/ddy;
+                    float dg = g2-g1;
+                    dg = dg/ddy;
+                    float db = b2-b1;
+                    db = db/ddy;
+
+                    float temp_r = r1;
+                    float temp_g = g1;
+                    float temp_b = b1;
+
                     int x = x1;
                     // Traverse along y+
                     for(int y=y1+1; y<=y2; y++){
@@ -299,13 +361,32 @@ void Client::Bresenham(int x1, int y1, int x2, int y2, unsigned int color1, unsi
                         else{
                             err = err+two_dx;
                         }
+                        temp_r = temp_r+dr;
+                        temp_g = temp_g+dg;
+                        temp_b = temp_b+db;
+                        rounded_r = round(temp_r);
+                        rounded_g = round(temp_g);
+                        rounded_b = round(temp_b);
 
-                        drawable->setPixel(x,y,color1);
+                        current_Color = (0xff<<24) + ((rounded_r & 0xff)<<16) + ((rounded_g & 0xff)<<8) + (rounded_b & 0xff);
+
+                        drawable->setPixel(x,y,current_Color);
                     }
                 }
                 else{
                     QTextStream(stdout)<<"6th cond. "<<endl;
-                    //QTextStream(stdout)<<"3rd cond. "<<endl;
+                    int ddy = y1 - y2;
+                    float dr = r2-r1;
+                    dr = dr/ddy;
+                    float dg = g2-g1;
+                    dg = dg/ddy;
+                    float db = b2-b1;
+                    db = db/ddy;
+
+                    float temp_r = r1;
+                    float temp_g = g1;
+                    float temp_b = b1;
+
                     int x = x1;
                     // Traverse along y-
                     for(int y=y1+1; y>=y2; y--){
@@ -317,14 +398,34 @@ void Client::Bresenham(int x1, int y1, int x2, int y2, unsigned int color1, unsi
                         else{
                             err = err+two_dx;
                         }
+                        temp_r = temp_r+dr;
+                        temp_g = temp_g+dg;
+                        temp_b = temp_b+db;
+                        rounded_r = round(temp_r);
+                        rounded_g = round(temp_g);
+                        rounded_b = round(temp_b);
 
-                        drawable->setPixel(x,y,color1);
+                        current_Color = (0xff<<24) + ((rounded_r & 0xff)<<16) + ((rounded_g & 0xff)<<8) + (rounded_b & 0xff);
+
+                        drawable->setPixel(x,y,current_Color);
                     }
                 }
         }
         else{
             if(y2>y1){
                 QTextStream(stdout)<<"7th cond. "<<endl;
+                int ddy = y2 - y1;
+                float dr = r2-r1;
+                dr = dr/ddy;
+                float dg = g2-g1;
+                dg = dg/ddy;
+                float db = b2-b1;
+                db = db/ddy;
+
+                float temp_r = r1;
+                float temp_g = g1;
+                float temp_b = b1;
+
                 int x = x1;
                 // Traverse along y+
                 for(int y=y1+1; y<=y2; y++){
@@ -336,12 +437,32 @@ void Client::Bresenham(int x1, int y1, int x2, int y2, unsigned int color1, unsi
                     else{
                         err = err+two_dx;
                     }
+                    temp_r = temp_r+dr;
+                    temp_g = temp_g+dg;
+                    temp_b = temp_b+db;
+                    rounded_r = round(temp_r);
+                    rounded_g = round(temp_g);
+                    rounded_b = round(temp_b);
 
-                    drawable->setPixel(x,y,color1);
+                    current_Color = (0xff<<24) + ((rounded_r & 0xff)<<16) + ((rounded_g & 0xff)<<8) + (rounded_b & 0xff);
+
+                    drawable->setPixel(x,y,current_Color);
                 }
             }
             else{
                 QTextStream(stdout)<<"8th cond. "<<endl;
+                int ddy = y1 - y2;
+                float dr = r2-r1;
+                dr = dr/ddy;
+                float dg = g2-g1;
+                dg = dg/ddy;
+                float db = b2-b1;
+                db = db/ddy;
+
+                float temp_r = r1;
+                float temp_g = g1;
+                float temp_b = b1;
+
                 int x = x1;
                 // Traverse along y-
                 for(int y=y1+1; y>=y2; y--){
@@ -353,8 +474,16 @@ void Client::Bresenham(int x1, int y1, int x2, int y2, unsigned int color1, unsi
                     else{
                         err = err+two_dx;
                     }
+                    temp_r = temp_r+dr;
+                    temp_g = temp_g+dg;
+                    temp_b = temp_b+db;
+                    rounded_r = round(temp_r);
+                    rounded_g = round(temp_g);
+                    rounded_b = round(temp_b);
 
-                    drawable->setPixel(x,y,color1);
+                    current_Color = (0xff<<24) + ((rounded_r & 0xff)<<16) + ((rounded_g & 0xff)<<8) + (rounded_b & 0xff);
+
+                    drawable->setPixel(x,y,current_Color);
                 }
             }
         }
@@ -648,8 +777,20 @@ void Client::Bresenham(int x1, int y1, int x2, int y2, unsigned int color1, unsi
 //}
 
 void Client::PageNumber(int page_position){
-    Bresenham(100,200,600,400,0x11bef7,0xFF5F3B);
-    QTextStream(stdout)<<"ran";
+    float x1,x2,y1,y2 = 0;
+            float space = 2*PI/90;
+            //float theta = 0;
+            int i = 0;
+    for (float theta=0; theta<2*PI; theta+=space){
+                x1 = 550;
+                y1 = 200;
+                x2 = 550 + 75*cos(theta);
+                y2 = 200 + 75*sin(theta);
+                //QTextStream(stdout)<<"(x2,y2)= ("<<x2<<","<<y2<<")"<<endl;
+                Bresenham(x1,y1,x2,y2,0x11bef7,0xFF5F3B);
+                i++;
+    }
+
 
 }
 
