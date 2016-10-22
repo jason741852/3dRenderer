@@ -15,9 +15,7 @@ private:
     void DDA(float x1, float y1, float x2, float y2, unsigned int color);
     void PageNumber(int page_location);
     void Bresenham(int x1, int y1, int x2, int y2, unsigned int color1, unsigned int color2);
-    //void AntiAliased(int x1, int y1, int x2, int y2, unsigned int color);
-    void PolygonRenderer (float xx1, float yy1, float xx2, float yy2, float xx3, float yy3, unsigned int color);
-    void PolygonRendererOpacity (float x1, float y1, float x2, float y2, float x3, float y3, unsigned int opacity);
+    void PolygonRenderer (float xx1, float yy1, float xx2, float yy2, float xx3, float yy3, unsigned int color1, unsigned int color2, unsigned int color3);
     int Distance(int x1, int y1, int x2, int y2);
 };
 
