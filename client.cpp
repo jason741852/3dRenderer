@@ -559,7 +559,37 @@ void Client::PolygonRenderer (float xx1, float yy1, float xx2, float yy2, float 
     float b_x;
     float b_y;
 
-    QTextStream(stdout)<<"b_m= "<<b_m<<endl;
+    int r1,g1,b1,r2,b2,g2,r3,g3,b3,long_rounded_r,long_rounded_g,long_rounded_b,a_rounded_r,a_rounded_g,a_rounded_b,b_rounded_r,b_rounded_g,b_rounded_b;
+
+    r1 = (color1>>16)& 0xff;
+    g1 = (color1>>8) & 0xff;
+    b1 = color1 & 0xff;
+    r2 = (color2>>16)& 0xff;
+    g2 = (color2>>8) & 0xff;
+    b2 = color2 & 0xff;
+    r3 = (color3>>16)& 0xff;
+    g3 = (color3>>8) & 0xff;
+    b3 = color3 & 0xff;
+
+    float temp_long_r = r1;
+    float temp_long_g = g1;
+    float temp_long_b = b1;
+    float temp_a_r = r1;
+    float temp_a_g = g1;
+    float temp_a_b = b1;
+    float temp_b_r = r3;
+    float temp_b_g = g3;
+    float temp_b_b = b3;
+
+    QTextStream(stdout)<<"r1= "<<r1<<" g1= "<<g1<<" b1= "<<b1<<endl;
+    QTextStream(stdout)<<"r2= "<<r2<<" g2= "<<g2<<" b2= "<<b2<<endl;
+    QTextStream(stdout)<<"r3= "<<r3<<" g3= "<<g3<<" b3= "<<b3<<endl;
+
+    unsigned int current_Color1, current_Color2, current_Color3;
+
+    drawable->setPixel(x1,y1,color1);
+
+
 
     //Check for vertical slope (m = infinity)
     if((x1-x2)==0){
@@ -579,9 +609,46 @@ void Client::PolygonRenderer (float xx1, float yy1, float xx2, float yy2, float 
     //QTextStream(stdout)<<"Slope= "<<long_m<<" || x1,y1="<<x1<<","<<y1<<"|| x2,y2="<<x2<<","<<y2<<"|| x3,y3="<<x3<<","<<y3<<endl;
 
     if(abs(long_m)<1){
+        int long_ddx = abs(x2 - x1);
+        float long_dr = r2-r1;
+        long_dr = long_dr/long_ddx;
+        float long_dg = g2-g1;
+        long_dg = long_dg/long_ddx;
+        float long_db = b2-b1;
+        long_db = long_db/long_ddx;
+
+        int a_ddx = abs(x3 - x1);
+        float a_dr = r3-r1;
+        a_dr = a_dr/a_ddx;
+        float a_dg = g3-g1;
+        a_dg = a_dg/a_ddx;
+        float a_db = b3-b1;
+        a_db = a_db/a_ddx;
+
+        int b_ddx = abs(x2 - x3);
+        float b_dr = r2-r3;
+        b_dr = b_dr/b_ddx;
+        float b_dg = g2-g3;
+        b_dg = b_dg/b_ddx;
+        float b_db = b2-b3;
+        b_db = b_db/b_ddx;
+
         if(long_dx>0){// x1<x2
-            for(float x = x1;x<=x2;x++){
+            //QTextStream(stdout)<<"long_ddx, a_ddx, b_ddx= "<<long_ddx<<", "<<a_ddx<<", "<<b_ddx<<endl;
+            //QTextStream(stdout)<<"a_dr, a_dg, a_db= "<<a_dr<<", "<<a_dg<<", "<<a_db<<endl;
+
+            for(float x = x1+1;x<=x2;x++){
                 long_y=long_m*x+long_b;
+
+                temp_long_r = temp_long_r+long_dr;
+                temp_long_g = temp_long_g+long_dg;
+                temp_long_b = temp_long_b+long_db;
+                long_rounded_r = round(temp_long_r);
+                long_rounded_g = round(temp_long_g);
+                long_rounded_b = round(temp_long_b);
+
+                current_Color1 = (0xff<<24) + ((long_rounded_r & 0xff)<<16) + ((long_rounded_g & 0xff)<<8) + (long_rounded_b & 0xff);
+
                 if(x<=x3){
                     if(!VertLine_p1p3){
                         a_y=a_m*x+a_b;
@@ -589,7 +656,19 @@ void Client::PolygonRenderer (float xx1, float yy1, float xx2, float yy2, float 
                     else{
                         a_y=y3;
                     }
-                    Bresenham(x,long_y,x,a_y,color1,color1);
+
+                    temp_a_r = temp_a_r+a_dr;
+                    temp_a_g = temp_a_g+a_dg;
+                    temp_a_b = temp_a_b+a_db;
+                    a_rounded_r = round(temp_a_r);
+                    a_rounded_g = round(temp_a_g);
+                    a_rounded_b = round(temp_a_b);
+                    //QTextStream(stdout)<<"a_rounded_r= "<<a_rounded_r<<" a_rounded_g= "<<a_rounded_g<<" a_rounded_b= "<<a_rounded_b<<endl;
+
+
+                    current_Color2 = (0xff<<24) + ((a_rounded_r & 0xff)<<16) + ((a_rounded_g & 0xff)<<8) + (a_rounded_b & 0xff);
+
+                    Bresenham(x,long_y,x,a_y,current_Color1,current_Color2);
                 }
                 else{
                     if(!VertLine_p2p3){
@@ -598,14 +677,34 @@ void Client::PolygonRenderer (float xx1, float yy1, float xx2, float yy2, float 
                     else{
                         b_y=y2;
                     }
-                    Bresenham(x,long_y,x,b_y,color1,color1);
+
+                    temp_b_r = temp_b_r+b_dr;
+                    temp_b_g = temp_b_g+b_dg;
+                    temp_b_b = temp_b_b+b_db;
+                    b_rounded_r = round(temp_b_r);
+                    b_rounded_g = round(temp_b_g);
+                    b_rounded_b = round(temp_b_b);
+
+                    current_Color3 = (0xff<<24) + ((b_rounded_r & 0xff)<<16) + ((b_rounded_g & 0xff)<<8) + (b_rounded_b & 0xff);
+
+                    Bresenham(x,long_y,x,b_y,current_Color1,current_Color3);
                 }
 
             }
         }
         else{
-            for(float x=x1;x>=x2;x--){
+            for(float x=x1-1;x>=x2;x--){
                 long_y=long_m*x+long_b;
+
+                temp_long_r = temp_long_r+long_dr;
+                temp_long_g = temp_long_g+long_dg;
+                temp_long_b = temp_long_b+long_db;
+                long_rounded_r = round(temp_long_r);
+                long_rounded_g = round(temp_long_g);
+                long_rounded_b = round(temp_long_b);
+
+                current_Color1 = (0xff<<24) + ((long_rounded_r & 0xff)<<16) + ((long_rounded_g & 0xff)<<8) + (long_rounded_b & 0xff);
+
                 if(x>=x3){
                     if(!VertLine_p1p3){
                         a_y=a_m*x+a_b;
@@ -613,7 +712,18 @@ void Client::PolygonRenderer (float xx1, float yy1, float xx2, float yy2, float 
                     else{
                         a_y=y3;
                     }
-                    Bresenham(x,long_y,x,a_y,color1,color1);
+                    temp_a_r = temp_a_r+a_dr;
+                    temp_a_g = temp_a_g+a_dg;
+                    temp_a_b = temp_a_b+a_db;
+                    a_rounded_r = round(temp_a_r);
+                    a_rounded_g = round(temp_a_g);
+                    a_rounded_b = round(temp_a_b);
+                    //QTextStream(stdout)<<"a_rounded_r= "<<a_rounded_r<<" a_rounded_g= "<<a_rounded_g<<" a_rounded_b= "<<a_rounded_b<<endl;
+
+
+                    current_Color2 = (0xff<<24) + ((a_rounded_r & 0xff)<<16) + ((a_rounded_g & 0xff)<<8) + (a_rounded_b & 0xff);
+
+                    Bresenham(x,long_y,x,a_y,current_Color1,current_Color2);
                 }
                 else{
                     if(!VertLine_p2p3){
@@ -622,15 +732,58 @@ void Client::PolygonRenderer (float xx1, float yy1, float xx2, float yy2, float 
                     else{
                         b_y=y2;
                     }
-                    Bresenham(x,long_y,x,b_y,color1,color1);
+                    temp_b_r = temp_b_r+b_dr;
+                    temp_b_g = temp_b_g+b_dg;
+                    temp_b_b = temp_b_b+b_db;
+                    b_rounded_r = round(temp_b_r);
+                    b_rounded_g = round(temp_b_g);
+                    b_rounded_b = round(temp_b_b);
+
+                    current_Color3 = (0xff<<24) + ((b_rounded_r & 0xff)<<16) + ((b_rounded_g & 0xff)<<8) + (b_rounded_b & 0xff);
+
+                    Bresenham(x,long_y,x,b_y,current_Color1,current_Color3);
                 }
             }
         }
     }
     else{
+        int long_ddy = abs(y2 - y1);
+        float long_dr = r2-r1;
+        long_dr = long_dr/long_ddy;
+        float long_dg = g2-g1;
+        long_dg = long_dg/long_ddy;
+        float long_db = b2-b1;
+        long_db = long_db/long_ddy;
+
+        int a_ddy = abs(y3 - y1);
+        float a_dr = r3-r1;
+        a_dr = a_dr/a_ddy;
+        float a_dg = g3-g1;
+        a_dg = a_dg/a_ddy;
+        float a_db = b3-b1;
+        a_db = a_db/a_ddy;
+
+        int b_ddy = abs(y2 - y3);
+        float b_dr = r2-r3;
+        b_dr = b_dr/b_ddy;
+        float b_dg = g2-g3;
+        b_dg = b_dg/b_ddy;
+        float b_db = b2-b3;
+        b_db = b_db/b_ddy;
+
         if(long_dy>0){
-            for(float y=y1;y<=y2;y++){
+            for(float y=y1+1;y<=y2;y++){
                 long_x=(y-long_b)/long_m;
+
+                temp_long_r = temp_long_r+long_dr;
+                temp_long_g = temp_long_g+long_dg;
+                temp_long_b = temp_long_b+long_db;
+                long_rounded_r = round(temp_long_r);
+                long_rounded_g = round(temp_long_g);
+                long_rounded_b = round(temp_long_b);
+
+                current_Color1 = (0xff<<24) + ((long_rounded_r & 0xff)<<16) + ((long_rounded_g & 0xff)<<8) + (long_rounded_b & 0xff);
+
                 if(y<=y3){
                     if(!VertLine_p1p3){
                         a_x= (y-a_b)/a_m;
@@ -638,7 +791,19 @@ void Client::PolygonRenderer (float xx1, float yy1, float xx2, float yy2, float 
                     else{
                         a_x=x1;
                     }
-                    Bresenham(long_x,y,a_x,y,color1,color1);
+
+                    temp_a_r = temp_a_r+a_dr;
+                    temp_a_g = temp_a_g+a_dg;
+                    temp_a_b = temp_a_b+a_db;
+                    a_rounded_r = round(temp_a_r);
+                    a_rounded_g = round(temp_a_g);
+                    a_rounded_b = round(temp_a_b);
+                    //QTextStream(stdout)<<"a_rounded_r= "<<a_rounded_r<<" a_rounded_g= "<<a_rounded_g<<" a_rounded_b= "<<a_rounded_b<<endl;
+
+
+                    current_Color2 = (0xff<<24) + ((a_rounded_r & 0xff)<<16) + ((a_rounded_g & 0xff)<<8) + (a_rounded_b & 0xff);
+
+                    Bresenham(long_x,y,a_x,y,current_Color1,current_Color2);
                 }
                 else{
                     if(!VertLine_p2p3){
@@ -647,13 +812,33 @@ void Client::PolygonRenderer (float xx1, float yy1, float xx2, float yy2, float 
                     else{
                         b_x=x2;
                     }
-                    Bresenham(long_x,y,b_x,y,color1,color1);
+
+                    temp_b_r = temp_b_r+b_dr;
+                    temp_b_g = temp_b_g+b_dg;
+                    temp_b_b = temp_b_b+b_db;
+                    b_rounded_r = round(temp_b_r);
+                    b_rounded_g = round(temp_b_g);
+                    b_rounded_b = round(temp_b_b);
+
+                    current_Color3 = (0xff<<24) + ((b_rounded_r & 0xff)<<16) + ((b_rounded_g & 0xff)<<8) + (b_rounded_b & 0xff);
+
+                    Bresenham(long_x,y,b_x,y,current_Color1,current_Color3);
                 }
             }
         }
         else{
-            for(float y=y1; y>=y2; y--){
+            for(float y=y1-1; y>=y2; y--){
                 long_x=(y-long_b)/long_m;
+
+                temp_long_r = temp_long_r+long_dr;
+                temp_long_g = temp_long_g+long_dg;
+                temp_long_b = temp_long_b+long_db;
+                long_rounded_r = round(temp_long_r);
+                long_rounded_g = round(temp_long_g);
+                long_rounded_b = round(temp_long_b);
+
+                current_Color1 = (0xff<<24) + ((long_rounded_r & 0xff)<<16) + ((long_rounded_g & 0xff)<<8) + (long_rounded_b & 0xff);
+
                 if(y>=y3){
                     if(!VertLine_p1p3){
                         a_x= (y-a_b)/a_m;
@@ -661,6 +846,18 @@ void Client::PolygonRenderer (float xx1, float yy1, float xx2, float yy2, float 
                     else{
                         a_x=x1;
                     }
+
+                    temp_a_r = temp_a_r+a_dr;
+                    temp_a_g = temp_a_g+a_dg;
+                    temp_a_b = temp_a_b+a_db;
+                    a_rounded_r = round(temp_a_r);
+                    a_rounded_g = round(temp_a_g);
+                    a_rounded_b = round(temp_a_b);
+                    //QTextStream(stdout)<<"a_rounded_r= "<<a_rounded_r<<" a_rounded_g= "<<a_rounded_g<<" a_rounded_b= "<<a_rounded_b<<endl;
+
+
+                    current_Color2 = (0xff<<24) + ((a_rounded_r & 0xff)<<16) + ((a_rounded_g & 0xff)<<8) + (a_rounded_b & 0xff);
+
                     Bresenham(long_x,y,a_x,y,color1,color1);
                 }
                 else{
@@ -670,6 +867,16 @@ void Client::PolygonRenderer (float xx1, float yy1, float xx2, float yy2, float 
                     else{
                         b_x=x2;
                     }
+
+                    temp_b_r = temp_b_r+b_dr;
+                    temp_b_g = temp_b_g+b_dg;
+                    temp_b_b = temp_b_b+b_db;
+                    b_rounded_r = round(temp_b_r);
+                    b_rounded_g = round(temp_b_g);
+                    b_rounded_b = round(temp_b_b);
+
+                    current_Color3 = (0xff<<24) + ((b_rounded_r & 0xff)<<16) + ((b_rounded_g & 0xff)<<8) + (b_rounded_b & 0xff);
+
                     Bresenham(long_x,y,b_x,y,color1,color1);
                 }
             }
@@ -679,7 +886,8 @@ void Client::PolygonRenderer (float xx1, float yy1, float xx2, float yy2, float 
 }
 
 void Client::PageNumber(int page_location){
-    PolygonRenderer(200,200,400,250,300,400,0x11bef7,0x11bef7,0x11bef7);
+    PolygonRenderer(200,200,500,250,300,300,0xff0000,0x00ff00,0x0000ff);
+    //Bresenham(500,250,200,500,0x80ffff,0xffd633);
 }
 
 int Client::Distance(int x1, int y1, int x2, int y2){
