@@ -8,6 +8,7 @@ class Client : public PageTurner
 public:
     Client(Drawable *drawable);
     void nextPage();
+    struct pixel;
 
 private:
     Drawable *drawable;

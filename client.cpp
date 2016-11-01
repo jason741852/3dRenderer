@@ -12,6 +12,11 @@ Client::Client(Drawable *drawable)
     this->drawable = drawable;
 }
 
+struct Client::pixel{
+    int x;
+    int y;
+};
+
 
 void Client::nextPage() {
     static int pageNumber = 0;
@@ -23,7 +28,7 @@ void Client::nextPage() {
         draw_rect(0, 0, 750, 750, 0xffffffff);
         draw_rect( 50,  50, 700, 700, 0x00000000);
         drawable->updateScreen();   // you must call this to make the display change.
-        PageNumber(1);
+        PageNumber(2);
         break;
     case 2:
         draw_rect(0, 0, 750, 750, 0xffffffff);
@@ -858,7 +863,7 @@ void Client::PolygonRenderer (float xx1, float yy1, float xx2, float yy2, float 
 
                     current_Color2 = (0xff<<24) + ((a_rounded_r & 0xff)<<16) + ((a_rounded_g & 0xff)<<8) + (a_rounded_b & 0xff);
 
-                    Bresenham(long_x,y,a_x,y,color1,color1);
+                    Bresenham(long_x,y,a_x,y,current_Color1,current_Color2);
                 }
                 else{
                     if(!VertLine_p2p3){
@@ -877,7 +882,7 @@ void Client::PolygonRenderer (float xx1, float yy1, float xx2, float yy2, float 
 
                     current_Color3 = (0xff<<24) + ((b_rounded_r & 0xff)<<16) + ((b_rounded_g & 0xff)<<8) + (b_rounded_b & 0xff);
 
-                    Bresenham(long_x,y,b_x,y,color1,color1);
+                    Bresenham(long_x,y,b_x,y,current_Color1,current_Color3);
                 }
             }
         }
@@ -886,8 +891,96 @@ void Client::PolygonRenderer (float xx1, float yy1, float xx2, float yy2, float 
 }
 
 void Client::PageNumber(int page_location){
-    PolygonRenderer(200,200,500,250,300,300,0xff0000,0x00ff00,0x0000ff);
-    //Bresenham(500,250,200,500,0x80ffff,0xffd633);
+    if(page_location==1){
+        qsrand(time(NULL)); // random seeding
+        struct pixel gird_point[10][10];
+        int shift_x;
+        int shift_y;
+        for(int i=0;i<=9;i++){
+            for(int j=0;j<=9;j++){
+                gird_point[i][j].x = 100+60*j;
+                gird_point[i][j].y = 100+60*i;
+
+                shift_x = qrand() % 20;
+                shift_y = qrand() % 20;
+                gird_point[i][j].x += shift_x;
+                gird_point[i][j].y += shift_y;
+                drawable->setPixel(gird_point[i][j].x,gird_point[i][j].y,0xffffffff);
+//                QTextStream(stdout)<<"(x1,y1)=("<<gird_point[i][j].x<<",";
+//                QTextStream(stdout)<<gird_point[i][j].y<<")  ";
+            }
+        }
+        for(int i=0;i<=9;i++){
+            for(int j=0;j<=9;j++){
+                int r1 = qrand() % 256;
+                int g1 = qrand() % 256;
+                int b1 = qrand() % 256;
+                int r2 = qrand() % 256;
+                int g2 = qrand() % 256;
+                int b2 = qrand() % 256;
+                unsigned int colour1 = (0xff<<24)+((r1&0xff)<<16)+((g1&0xff)<<8)+(b1&0xff);
+                unsigned int colour2 = (0xff<<24)+((r2&0xff)<<16)+((g2&0xff)<<8)+(b2&0xff);
+//                QTextStream(stdout)<<"(x2,y2)=("<<gird_point[i][j].x<<",";
+//                QTextStream(stdout)<<gird_point[i][j+1].y<<")  ";
+//                QTextStream(stdout)<<"(x1,y1)=("<<gird_point[i][j].x<<",";
+//                QTextStream(stdout)<<gird_point[i][j].y<<")  ";
+//                QTextStream(stdout)<<"(x2,y2)=("<<gird_point[i][j+1].x<<",";
+//                QTextStream(stdout)<<gird_point[i][j+1].y<<")  ";
+
+                if(j<9){
+                    Bresenham(gird_point[i][j].x,gird_point[i][j].y,gird_point[i][j+1].x,gird_point[i][j+1].y,colour1,colour2);
+                }
+                if(i<9){
+                    Bresenham(gird_point[i][j].x,gird_point[i][j].y,gird_point[i+1][j].x,gird_point[i+1][j].y,colour1,colour2);
+                }
+                if(i!=0 && i<9 && j<9){
+                    Bresenham(gird_point[i][j].x,gird_point[i][j].y,gird_point[i-1][j+1].x,gird_point[i-1][j+1].y,colour1,colour2);
+                }
+            }
+        }
+    }
+    else if(page_location==2){
+        qsrand(time(NULL)); // random seeding
+        struct pixel gird_point[10][10];
+        int shift_x;
+        int shift_y;
+        for(int i=0;i<=9;i++){
+            for(int j=0;j<=9;j++){
+                gird_point[i][j].x = 100+60*j;
+                gird_point[i][j].y = 100+60*i;
+
+                shift_x = qrand() % 20;
+                shift_y = qrand() % 20;
+                gird_point[i][j].x += shift_x;
+                gird_point[i][j].y += shift_y;
+                drawable->setPixel(gird_point[i][j].x,gird_point[i][j].y,0xffffffff);
+                QTextStream(stdout)<<"(x1,y1)=("<<gird_point[i][j].x<<",";
+                QTextStream(stdout)<<gird_point[i][j].y<<")  ";
+            }
+        }
+        for(int i=0;i<=9;i++){
+            for(int j=0;j<=9;j++){
+                int r1 = qrand() % 256;
+                int g1 = qrand() % 256;
+                int b1 = qrand() % 256;
+                int r2 = qrand() % 256;
+                int g2 = qrand() % 256;
+                int b2 = qrand() % 256;
+                int r3 = qrand() % 256;
+                int g3 = qrand() % 256;
+                int b3 = qrand() % 256;
+                unsigned int colour1 = (0xff<<24)+((r1&0xff)<<16)+((g1&0xff)<<8)+(b1&0xff);
+                unsigned int colour2 = (0xff<<24)+((r2&0xff)<<16)+((g2&0xff)<<8)+(b2&0xff);
+                unsigned int colour3 = (0xff<<24)+((r2&0xff)<<16)+((g2&0xff)<<8)+(b2&0xff);
+
+                if(j<9 && i<9){
+                    PolygonRenderer(gird_point[i][j].x,gird_point[i][j].y,gird_point[i][j+1].x,gird_point[i][j+1].y,gird_point[i+1][j].x,gird_point[i+1][j].y,colour1,colour2,colour3);
+                    PolygonRenderer(gird_point[i+1][j].x,gird_point[i+1][j].y,gird_point[i+1][j+1].x,gird_point[i+1][j+1].y,gird_point[i][j+1].x,gird_point[i][j+1].y,colour2,colour3,colour1);
+                }
+            }
+        }
+
+    }
 }
 
 int Client::Distance(int x1, int y1, int x2, int y2){
