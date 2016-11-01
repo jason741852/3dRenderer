@@ -3,9 +3,15 @@
 #include <QTextStream>
 #include <iostream>
 #include <ctime>
+#include <fstream> //parse simp file
+#include <cstring>
 #include "client.h"
 
 # define PI  3.14159265358979323846  /* pi */
+
+const int MAX_CHARS_PER_LINE = 512;
+const int MAX_TOKENS_PER_LINE = 20;
+const char* const DELIMITER = " ";
 
 Client::Client(Drawable *drawable)
 {
@@ -971,15 +977,14 @@ void Client::PageNumber(int page_location){
                 int b3 = qrand() % 256;
                 unsigned int colour1 = (0xff<<24)+((r1&0xff)<<16)+((g1&0xff)<<8)+(b1&0xff);
                 unsigned int colour2 = (0xff<<24)+((r2&0xff)<<16)+((g2&0xff)<<8)+(b2&0xff);
-                unsigned int colour3 = (0xff<<24)+((r2&0xff)<<16)+((g2&0xff)<<8)+(b2&0xff);
+                unsigned int colour3 = (0xff<<24)+((r3&0xff)<<16)+((g3&0xff)<<8)+(b3&0xff);
 
                 if(j<9 && i<9){
                     PolygonRenderer(gird_point[i][j].x,gird_point[i][j].y,gird_point[i][j+1].x,gird_point[i][j+1].y,gird_point[i+1][j].x,gird_point[i+1][j].y,colour1,colour2,colour3);
-                    PolygonRenderer(gird_point[i+1][j].x,gird_point[i+1][j].y,gird_point[i+1][j+1].x,gird_point[i+1][j+1].y,gird_point[i][j+1].x,gird_point[i][j+1].y,colour2,colour3,colour1);
+                    PolygonRenderer(gird_point[i+1][j].x,gird_point[i+1][j].y,gird_point[i+1][j+1].x,gird_point[i+1][j+1].y,gird_point[i][j+1].x,gird_point[i][j+1].y,colour2,colour1,colour3);
                 }
             }
         }
-
     }
 }
 
