@@ -3,15 +3,18 @@
 #include <QTextStream>
 #include <iostream>
 #include <ctime>
+#include <stdlib.h>
 #include <fstream> //parse simp file
-#include <cstring>
+using std::ifstream;
+#include <string>
+#include <stack>
 #include "client.h"
 
 # define PI  3.14159265358979323846  /* pi */
 
 const int MAX_CHARS_PER_LINE = 512;
-const int MAX_TOKENS_PER_LINE = 20;
-const char* const DELIMITER = " ";
+const int MAX_TOKENS = 500;
+const char* const DELIMITER = "\"    ,()\n";
 
 Client::Client(Drawable *drawable)
 {
@@ -23,23 +26,59 @@ struct Client::pixel{
     int y;
 };
 
+struct Client::Mat{
+    float mat[4][4];
+    Mat(){
+        for(int i=0;i<4;i++){
+            for(int j=0;j<4;j++){
+                if(i==j) mat[i][j]=1.0;
+                else mat[i][j]=0.0;
+            }
+        }
+    };
+};
+typedef struct Mat Mat;
+
+struct Client::translateMat{
+    float tx,ty,tz;
+    int order;
+    translateMat(): tx(0),ty(0),tz(0),order(10){}
+};
+typedef struct translateMat translateMat;
+
+
+struct Client::rotateMat{
+    const char* axis;
+    float theta;
+    int order;
+    rotateMat(): axis("n"),theta(0),order(10){}
+};
+typedef struct rotateMat rotateMat;
+
+struct Client::scaleMat{
+    float sx,sy,sz;
+    int order;
+    scaleMat(): sx(1),sy(1),sz(1),order(10){}
+};
+typedef struct scaleMat scaleMat;
 
 void Client::nextPage() {
     static int pageNumber = 0;
     pageNumber++;
-    std::cout << "PageNumber " << pageNumber << std::endl;
+    //std::cout << "PageNumber " << pageNumber << std::endl;
 
     switch(pageNumber % 5) {
     case 1:
         draw_rect(0, 0, 750, 750, 0xffffffff);
         draw_rect( 50,  50, 700, 700, 0x00000000);
         drawable->updateScreen();   // you must call this to make the display change.
-        PageNumber(2);
+        PageNumber(3);
         break;
     case 2:
         draw_rect(0, 0, 750, 750, 0xffffffff);
         draw_rect( 50,  50, 700, 700, 0x00000000);
         drawable->updateScreen();
+        //PageNumber(2);
         break;
     case 3:
         draw_rect(0, 0, 750, 750, 0xffffffff);
@@ -510,6 +549,7 @@ void Client::PolygonRenderer (float xx1, float yy1, float xx2, float yy2, float 
     bool VertLine_p1p3 = false;
     bool VertLine_p2p3 = false;
     float x1,y1,x2,y2,x3,y3;
+    int r1,g1,b1,r2,b2,g2,r3,g3,b3,long_rounded_r,long_rounded_g,long_rounded_b,a_rounded_r,a_rounded_g,a_rounded_b,b_rounded_r,b_rounded_g,b_rounded_b;
 
     // Assigning parameters to p1,p2,p3
     // (x1,y1)->(x2,y2) is assigned to be the longest line
@@ -520,6 +560,17 @@ void Client::PolygonRenderer (float xx1, float yy1, float xx2, float yy2, float 
         y2 = yy2;
         x3 = xx3;
         y3 = yy3;
+
+        r1 = (color1>>16)& 0xff;
+        g1 = (color1>>8) & 0xff;
+        b1 = color1 & 0xff;
+        r2 = (color2>>16)& 0xff;
+        g2 = (color2>>8) & 0xff;
+        b2 = color2 & 0xff;
+        r3 = (color3>>16)& 0xff;
+        g3 = (color3>>8) & 0xff;
+        b3 = color3 & 0xff;
+
         QTextStream(stdout)<<"longest line is (p1,p2)"<<endl;
 
     }
@@ -530,7 +581,20 @@ void Client::PolygonRenderer (float xx1, float yy1, float xx2, float yy2, float 
         y2 = yy3;
         x3 = xx1;
         y3 = yy1;
+
+        r1 = (color2>>16)& 0xff;
+        g1 = (color2>>8) & 0xff;
+        b1 = color2 & 0xff;
+        r2 = (color3>>16)& 0xff;
+        g2 = (color3>>8) & 0xff;
+        b2 = color3 & 0xff;
+        r3 = (color1>>16)& 0xff;
+        g3 = (color1>>8) & 0xff;
+        b3 = color1 & 0xff;
+
         QTextStream(stdout)<<"longest line is (p2,p3)"<<endl;
+
+
     }
     else{
         x1 = xx1;
@@ -539,6 +603,16 @@ void Client::PolygonRenderer (float xx1, float yy1, float xx2, float yy2, float 
         y2 = yy3;
         x3 = xx2;
         y3 = yy2;
+
+        r1 = (color1>>16)& 0xff;
+        g1 = (color1>>8) & 0xff;
+        b1 = color1 & 0xff;
+        r2 = (color3>>16)& 0xff;
+        g2 = (color3>>8) & 0xff;
+        b2 = color3 & 0xff;
+        r3 = (color2>>16)& 0xff;
+        g3 = (color2>>8) & 0xff;
+        b3 = color2 & 0xff;
         QTextStream(stdout)<<"longest line is (p1,p3)"<<endl;
     }
 
@@ -569,18 +643,6 @@ void Client::PolygonRenderer (float xx1, float yy1, float xx2, float yy2, float 
     float b_b = y2-b_m*x2;
     float b_x;
     float b_y;
-
-    int r1,g1,b1,r2,b2,g2,r3,g3,b3,long_rounded_r,long_rounded_g,long_rounded_b,a_rounded_r,a_rounded_g,a_rounded_b,b_rounded_r,b_rounded_g,b_rounded_b;
-
-    r1 = (color1>>16)& 0xff;
-    g1 = (color1>>8) & 0xff;
-    b1 = color1 & 0xff;
-    r2 = (color2>>16)& 0xff;
-    g2 = (color2>>8) & 0xff;
-    b2 = color2 & 0xff;
-    r3 = (color3>>16)& 0xff;
-    g3 = (color3>>8) & 0xff;
-    b3 = color3 & 0xff;
 
     float temp_long_r = r1;
     float temp_long_g = g1;
@@ -647,7 +709,7 @@ void Client::PolygonRenderer (float xx1, float yy1, float xx2, float yy2, float 
         if(long_dx>0){// x1<x2
             //QTextStream(stdout)<<"long_ddx, a_ddx, b_ddx= "<<long_ddx<<", "<<a_ddx<<", "<<b_ddx<<endl;
             //QTextStream(stdout)<<"a_dr, a_dg, a_db= "<<a_dr<<", "<<a_dg<<", "<<a_db<<endl;
-
+            QTextStream(stdout)<<"1"<<endl;
             for(float x = x1+1;x<=x2;x++){
                 long_y=long_m*x+long_b;
 
@@ -697,13 +759,14 @@ void Client::PolygonRenderer (float xx1, float yy1, float xx2, float yy2, float 
                     b_rounded_b = round(temp_b_b);
 
                     current_Color3 = (0xff<<24) + ((b_rounded_r & 0xff)<<16) + ((b_rounded_g & 0xff)<<8) + (b_rounded_b & 0xff);
-
+                    //QTextStream(stdout)<<"a_rounded_r= "<<a_rounded_r<<" a_rounded_g= "<<a_rounded_g<<" a_rounded_b= "<<a_rounded_b<<endl;
                     Bresenham(x,long_y,x,b_y,current_Color1,current_Color3);
                 }
 
             }
         }
         else{
+            QTextStream(stdout)<<"2"<<endl;
             for(float x=x1-1;x>=x2;x--){
                 long_y=long_m*x+long_b;
 
@@ -783,6 +846,7 @@ void Client::PolygonRenderer (float xx1, float yy1, float xx2, float yy2, float 
         b_db = b_db/b_ddy;
 
         if(long_dy>0){
+            QTextStream(stdout)<<"3"<<endl;
             for(float y=y1+1;y<=y2;y++){
                 long_x=(y-long_b)/long_m;
 
@@ -838,6 +902,7 @@ void Client::PolygonRenderer (float xx1, float yy1, float xx2, float yy2, float 
             }
         }
         else{
+            QTextStream(stdout)<<"4"<<endl;
             for(float y=y1-1; y>=y2; y--){
                 long_x=(y-long_b)/long_m;
 
@@ -896,7 +961,69 @@ void Client::PolygonRenderer (float xx1, float yy1, float xx2, float yy2, float 
 
 }
 
+void Client::depthCuePolygonRenderer(int x1,int y1,int z1, int x2, int y2, int z2, int x3, int y3, int z3, unsigned int nearColor, unsigned farColor){
+    // define zNear and zFar clipping planes
+
+    float rNear = (nearColor>>16)& 0xff;
+    float gNear = (nearColor>>8) & 0xff;
+    float bNear = nearColor & 0xff;
+    float rFar = (farColor>>16)& 0xff;
+    float gFar = (farColor>>8) & 0xff;
+    float bFar = farColor & 0xff;
+
+    float dr = rFar-rNear;
+    dr = dr/200;
+    float dg = gFar-gNear;
+    dg = dg/200;
+    float db = bFar - bNear;
+    db = db/200;
+
+    float z1_percentage = z1/2;
+    z1_percentage = z1_percentage/100;
+    z1_percentage = 1 - z1_percentage;
+    float z2_percentage = z2/2;
+    z2_percentage = z2_percentage/100;
+    z2_percentage = 1 - z2_percentage;
+    float z3_percentage = z3/2;
+    z3_percentage = z3_percentage/100;
+    z3_percentage = 1 - z3_percentage;
+    QTextStream(stdout)<<"z1 z2 z3 percentage= "<<z1_percentage<<" "<<z2_percentage<<" "<<z3_percentage<<endl;
+//    int r1 = round(rNear+dr*(z1/2));
+//    int g1 = round(gNear+dg*(z1/2));
+//    int b1 = round(bNear+db*(z1/2));
+//    int r2 = round(rNear+dr*(z2/2));
+//    int g2 = round(gNear+dg*(z2/2));
+//    int b2 = round(bNear+db*(z2/2));
+//    int r3 = round(rNear+dr*(z3/2));
+//    int g3 = round(gNear+dg*(z3/2));
+//    int b3 = round(bNear+db*(z3/2));
+
+    int r1 = round(rNear*z1_percentage);
+    int g1 = round(gNear*z1_percentage);
+    int b1 = round(bNear*z1_percentage);
+    int r2 = round(rNear*z2_percentage);
+    int g2 = round(gNear*z2_percentage);
+    int b2 = round(bNear*z2_percentage);
+    int r3 = round(rNear*z3_percentage);
+    int g3 = round(gNear*z3_percentage);
+    int b3 = round(bNear*z3_percentage);
+    QTextStream(stdout)<<"rN,gN,bN,rF,gF,bF= "<<rNear<<" "<<gNear<<" "<<bNear<<" "<<rFar<<" "<<gFar<<" "<<bFar<<" "<<endl;
+    QTextStream(stdout)<<"r1,g1,b1,r2,g2,b2,r3,g3,b3= "<<r1<<","<<g1<<","<<b1<<","<<r2<<","<<g2<<","<<b2<<","<<r3<<","<<g3<<","<<b3<<endl;
+
+    unsigned int current_Color1 = (0xff<<24) + ((r1 & 0xff)<<16) + ((g1 & 0xff)<<8) + (b1 & 0xff);
+    unsigned int current_Color2 = (0xff<<24) + ((r2 & 0xff)<<16) + ((g2 & 0xff)<<8) + (b2 & 0xff);
+    unsigned int current_Color3 = (0xff<<24) + ((r3 & 0xff)<<16) + ((g3 & 0xff)<<8) + (b3 & 0xff);
+
+    PolygonRenderer(x1,y1,x2,y2,x3,y3,current_Color1,current_Color2,current_Color3);
+
+
+}
+
+
 void Client::PageNumber(int page_location){
+    ///////////////////////
+    // Page 1: Wireframe //
+    ///////////////////////
     if(page_location==1){
         qsrand(time(NULL)); // random seeding
         struct pixel gird_point[10][10];
@@ -926,12 +1053,6 @@ void Client::PageNumber(int page_location){
                 int b2 = qrand() % 256;
                 unsigned int colour1 = (0xff<<24)+((r1&0xff)<<16)+((g1&0xff)<<8)+(b1&0xff);
                 unsigned int colour2 = (0xff<<24)+((r2&0xff)<<16)+((g2&0xff)<<8)+(b2&0xff);
-//                QTextStream(stdout)<<"(x2,y2)=("<<gird_point[i][j].x<<",";
-//                QTextStream(stdout)<<gird_point[i][j+1].y<<")  ";
-//                QTextStream(stdout)<<"(x1,y1)=("<<gird_point[i][j].x<<",";
-//                QTextStream(stdout)<<gird_point[i][j].y<<")  ";
-//                QTextStream(stdout)<<"(x2,y2)=("<<gird_point[i][j+1].x<<",";
-//                QTextStream(stdout)<<gird_point[i][j+1].y<<")  ";
 
                 if(j<9){
                     Bresenham(gird_point[i][j].x,gird_point[i][j].y,gird_point[i][j+1].x,gird_point[i][j+1].y,colour1,colour2);
@@ -945,6 +1066,9 @@ void Client::PageNumber(int page_location){
             }
         }
     }
+    //////////////////
+    // Page 2: Mesh //
+    //////////////////
     else if(page_location==2){
         qsrand(time(NULL)); // random seeding
         struct pixel gird_point[10][10];
@@ -981,13 +1105,276 @@ void Client::PageNumber(int page_location){
 
                 if(j<9 && i<9){
                     PolygonRenderer(gird_point[i][j].x,gird_point[i][j].y,gird_point[i][j+1].x,gird_point[i][j+1].y,gird_point[i+1][j].x,gird_point[i+1][j].y,colour1,colour2,colour3);
-                    PolygonRenderer(gird_point[i+1][j].x,gird_point[i+1][j].y,gird_point[i+1][j+1].x,gird_point[i+1][j+1].y,gird_point[i][j+1].x,gird_point[i][j+1].y,colour2,colour1,colour3);
+                    PolygonRenderer(gird_point[i+1][j].x,gird_point[i+1][j].y,gird_point[i+1][j+1].x,gird_point[i+1][j+1].y,gird_point[i][j+1].x,gird_point[i][j+1].y,colour3,colour1,colour2);
                 }
             }
         }
+    }
+    else if(page_location==3){
+
+        char* filename[] = {"page3.txt"};
+        SimpDrawer(filename);
+    }
+    else if(page_location==10){
+        depthCuePolygonRenderer(100,100,50,200,400,100,500,600,140,0xffffffff,0x00000000);
     }
 }
 
 int Client::Distance(int x1, int y1, int x2, int y2){
     return sqrt((x2 - x1)*(x2 - x1) + (y2 - y1)*(y2 - y1));
 }
+
+
+
+
+
+
+bool Client::SimpDrawer(char* filename[]){
+    //typedef struct translateMat translateMat;
+    ifstream fin;
+
+    fin.open(*filename);// open simp file
+    if(fin.fail()){// check if open successfully
+        QTextStream(stdout) << "file open error.."<<endl;
+        return false;
+    }
+
+    const char* tempTok[MAX_TOKENS][MAX_TOKENS] = {}; // initialize to 0
+    int lineCount=0;
+    const char* token[MAX_TOKENS][MAX_TOKENS] = {};
+
+    while(!fin.eof()){
+        // read an entire line into memory
+        char buf[MAX_CHARS_PER_LINE];
+
+        fin.getline(buf, MAX_CHARS_PER_LINE);
+        // parse the line into blank-delimited tokens
+        int n = 0; // a for-loop index
+
+        tempTok[lineCount][n] = strtok(buf, DELIMITER); // first token
+
+        if (tempTok[lineCount][0]) // zero if line is blank
+        {
+          for (n = 1; n < MAX_TOKENS; n++)
+          {
+            tempTok[lineCount][n] = strtok(NULL, DELIMITER); // subsequent tokens
+            if (!tempTok[lineCount][n]) break; // no more tokens
+          }
+        }
+
+        int i =0;
+        // process (print) the tokens
+        for (i; i < n; i++){
+//          QTextStream(stdout) << "Token[" << lineCount << "]["<<i<<"] = " << tempTok[lineCount][i] << endl;
+          token[lineCount][i] = strdup(tempTok[lineCount][i]);
+        }
+        token[lineCount][i] = "~";
+        lineCount++;
+    }
+    QTextStream(stdout) << "!!! token[" << 0 << "]["<<0<<"] = " << token[0][1] << endl;
+//    QTextStream(stdout) << "!!! token[" << 1 << "]["<<0<<"] = " << token[0][10] << endl;
+
+
+
+    fin.close();
+
+
+    ////////////////////////////////////////
+    // text file is tokenized             //
+    // now use the array to output screen //
+    ///////////////////////////////////////
+
+    // Define initial Coordinate system
+    std::stack<Mat>mstack;
+    Mat m;
+    mstack.push(m);
+    bool fill = true;
+
+    int x1,x2,x3,y1,y2,y3,z1,z2,z3;// temp variables for assigning polygon
+
+
+    for(int j=0;j<lineCount;j++){
+
+        int i = 0; //command iteration
+        while(token[j][i]!="~"){
+            if(strcmp(token[j][i],"#")==0){} // do nothing if the line is a comment
+            /////////////////
+            // CTM Section //
+            /////////////////
+            // want to only do one push per scope, so need to iterate through
+            else if((strcmp(token[j][i],"{"))==0){
+                Mat m;
+                int k=j+1;
+                while((strcmp(token[k][i],"translate"))==0 || (strcmp(token[k][i],"scale"))==0 || (strcmp(token[k][i],"scale"))==0){
+                    QTextStream(stdout) <<"!@!"<< token[k][i] <<endl;
+                    if((strcmp(token[k][i],"translate"))==0){
+                        m.mat[0][3]=m.mat[0][3]+atof(token[k][i+1]);
+                        m.mat[1][3]=m.mat[1][3]+atof(token[k][i+2]);
+                        m.mat[2][3]=m.mat[2][3]+atof(token[k][i+3]);
+                        k++;
+                    }
+                    else if((strcmp(token[k][i],"scale"))==0){
+                        Mat tempm;
+                        Mat tempResult;
+                        for(int ii=0;ii<4;ii++){
+                                for(int jj=0;jj<4;jj++){
+                                    tempResult.mat[ii][jj]=0;
+                                }
+                        }
+                        tempm.mat[0][0]=atof(token[k][i+1]);
+                        tempm.mat[1][1]=atof(token[k][i+2]);
+                        tempm.mat[2][2]=atof(token[k][i+3]);
+                        QTextStream(stdout) << "tok1 "<<tempm.mat[0][0]<<endl;
+                        QTextStream(stdout) << "tok2 "<<tempm.mat[1][1]<<endl;
+                        QTextStream(stdout) << "tok4 "<<tempm.mat[3][3]<<endl;
+
+                        for(int ii=0;ii<4;ii++){
+                                for(int jj=0;jj<4;jj++){
+                                    for(int kk=0;kk<4;kk++){
+                                        tempResult.mat[ii][jj]+= m.mat[ii][kk]*tempm.mat[kk][jj];
+                                        QTextStream(stdout) << tempResult.mat[ii][jj]<<" ";
+                                    }
+                                    //QTextStream(stdout) << tempResult.mat[ii][jj]<<" ";
+                                }
+                                QTextStream(stdout) <<" "<<endl;
+                        }
+
+                        for(int ii=0;ii<4;ii++){
+                                for(int jj=0;jj<4;jj++){
+                                    m.mat[ii][jj]=tempResult.mat[ii][jj];
+                                }
+                        }
+                        k++;
+
+                    }
+                    else if((strcmp(token[k][i],"rotate"))==0){
+                        QTextStream(stdout) << "rotate "<<endl;
+                        Mat tempm;
+                        Mat tempResult;
+                        for(int ii=0;ii<4;ii++){
+                                for(int jj=0;jj<4;jj++){
+                                    tempResult.mat[ii][jj]=0;
+                                }
+                        }
+
+                        if ((strcmp(token[k][i+1],"x"))==0){
+                            tempm.mat[1][1]=cos(atof(token[k][i+2]));
+                            tempm.mat[1][2]=-sin(atof(token[k][i+2]));
+                            tempm.mat[2][1]=sin(atof(token[k][i+2]));
+                            tempm.mat[2][2]=cos(atof(token[k][i+2]));
+                        }
+                        else if((strcmp(token[k][i+1],"y"))==0){
+                            tempm.mat[0][0]=cos(atof(token[k][i+2]));
+                            tempm.mat[0][2]=sin(atof(token[k][i+2]));
+                            tempm.mat[2][0]=-sin(atof(token[k][i+2]));
+                            tempm.mat[2][2]=cos(atof(token[k][i+2]));
+                        }
+                        else if((strcmp(token[k][i+1],"z"))==0){
+                            tempm.mat[0][0]=cos(atof(token[k][i+2]));
+                            tempm.mat[0][1]=-sin(atof(token[k][i+2]));
+                            tempm.mat[1][0]=sin(atof(token[k][i+2]));
+                            tempm.mat[1][1]=cos(atof(token[k][i+2]));
+                        }
+
+                        for(int ii=0;ii<4;ii++){
+                                for(int jj=0;jj<4;jj++){
+                                    for(int kk=0;kk<4;kk++){
+                                        tempResult.mat[ii][jj]+= m.mat[ii][kk]*tempm.mat[kk][jj];
+                                        QTextStream(stdout) << tempResult.mat[ii][jj]<<" ";
+                                    }
+                                    QTextStream(stdout) <<" "<<endl;
+                                }
+                        }
+
+                        for(int ii=0;ii<4;ii++){
+                                for(int jj=0;jj<4;jj++){
+                                    m.mat[ii][jj]=tempResult.mat[ii][jj];
+                                }
+                        }
+                        k++;
+                    }
+                    else break;
+                }
+
+                // always push
+                mstack.push(m);
+//                for(int ii=0;ii<4;ii++){
+//                    for(int jj=0;jj<4;jj++){
+//                        QTextStream(stdout)<<mstack.top().mat[ii][jj]<<" ";
+//                    }
+//                    QTextStream(stdout)<<" "<<endl;
+//                }
+                i++;
+            }
+            else if((strcmp(token[j][i],"}"))==0){
+                // always pop
+                mstack.pop();
+                i++;
+
+            }
+
+            ////////////////
+            // wire/frame //
+            ////////////////
+            else if((strcmp(token[j][i],"wire"))==0){
+                fill = false;
+                i++;
+            }
+            else if((strcmp(token[j][i],"fill"))==0){
+                fill = true;
+                i++;
+            }
+
+            ////////////////////
+            // Render Section //
+            ////////////////////
+            else if((strcmp(token[j][i],"polygon"))==0){
+                Mat CTM;
+                for(int ii=0;ii<4;ii++){
+                    for(int jj=0;jj<4;jj++){
+                        CTM.mat[ii][jj]=mstack.top().mat[ii][jj];
+                        QTextStream(stdout) << CTM.mat[ii][jj]<<" ";
+                    }
+                    QTextStream(stdout)<<" "<<endl;
+                }
+
+                float temp_x1 = atof(token[j][i+1]);
+                float temp_y1 = atof(token[j][i+2]);
+                float temp_z1 = atof(token[j][i+3]);
+                float temp_x2 = atof(token[j][i+4]);
+                float temp_y2 = atof(token[j][i+5]);
+                float temp_z2 = atof(token[j][i+6]);
+                float temp_x3 = atof(token[j][i+7]);
+                float temp_y3 = atof(token[j][i+8]);
+                float temp_z3 = atof(token[j][i+9]);
+
+                x1 = temp_x1*CTM.mat[0][0]+temp_y1*CTM.mat[0][1]+temp_z1*CTM.mat[0][2]+CTM.mat[0][3];
+                y1 = temp_x1*CTM.mat[1][0]+temp_y1*CTM.mat[1][1]+temp_z1*CTM.mat[1][2]+CTM.mat[1][3];
+                z1 = temp_x1*CTM.mat[2][0]+temp_y1*CTM.mat[2][1]+temp_z1*CTM.mat[2][2]+CTM.mat[2][3];
+                x2 = temp_x2*CTM.mat[0][0]+temp_y2*CTM.mat[0][1]+temp_z2*CTM.mat[0][2]+CTM.mat[0][3];
+                y2 = temp_x2*CTM.mat[1][0]+temp_y2*CTM.mat[1][1]+temp_z2*CTM.mat[1][2]+CTM.mat[1][3];
+                z2 = temp_x2*CTM.mat[2][0]+temp_y2*CTM.mat[2][1]+temp_z2*CTM.mat[2][2]+CTM.mat[2][3];
+                x3 = temp_x3*CTM.mat[0][0]+temp_y3*CTM.mat[0][1]+temp_z3*CTM.mat[0][2]+CTM.mat[0][3];
+                y3 = temp_x3*CTM.mat[1][0]+temp_y3*CTM.mat[1][1]+temp_z3*CTM.mat[1][2]+CTM.mat[1][3];
+                z3 = temp_x3*CTM.mat[2][0]+temp_y3*CTM.mat[2][1]+temp_z3*CTM.mat[2][2]+CTM.mat[2][3];
+                QTextStream(stdout)<<"x1y1z1= "<<x1<<" "<<y1<<" "<<z1<<endl<<"x2y2z2= "<<x2<<" "<<y2<<" "<<z2<<endl<<"x3y3z3= "<<x3<<" "<<y3<<" "<<z3<<endl;
+                if(fill==true){
+                    PolygonRenderer(x1,y1,x2,y2,x3,y3,0xffffffff,0xffffffff,0xffffffff);
+                }
+                else{
+                    Bresenham(x1,y1,x2,y2,0xffffffff,0xffffffff);
+                    Bresenham(x1,y1,x3,y3,0xffffffff,0xffffffff);
+                    Bresenham(x2,y2,x3,y3,0xffffffff,0xffffffff);
+                }
+
+                i++;
+            }
+            else break;
+            QTextStream(stdout)<<"j= "<<j<<endl;
+
+        }
+    }
+
+    return true;
+}
+
