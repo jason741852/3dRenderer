@@ -10,9 +10,7 @@ public:
     Client(Drawable *drawable);
     void nextPage();
     struct pixel;
-    struct translateMat;
-    struct rotateMat;
-    struct scaleMat;
+    struct meshPixel;
     struct Mat;
 
 private:
@@ -24,7 +22,8 @@ private:
     void PolygonRenderer (float xx1, float yy1, float xx2, float yy2, float xx3, float yy3, unsigned int color1, unsigned int color2, unsigned int color3);
     void depthCuePolygonRenderer(int x1,int y1,int z1, int x2, int y2, int z2, int x3, int y3, int z3, unsigned int nearColor, unsigned farColor)  ;
     int Distance(int x1, int y1, int x2, int y2);
-    bool SimpDrawer(char* filename[]);
+    bool SimpDrawer(char* filename[], unsigned int nearColour, unsigned int farColour);
+    bool meshRenderer(const char* filename, Mat m);
 };
 
 #endif // CLIENT_H

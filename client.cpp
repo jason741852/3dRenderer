@@ -14,7 +14,7 @@ using std::ifstream;
 
 const int MAX_CHARS_PER_LINE = 512;
 const int MAX_TOKENS = 500;
-const char* const DELIMITER = "\"    ,()\n";
+const char* const DELIMITER = "\"    \t,()\n";
 
 Client::Client(Drawable *drawable)
 {
@@ -26,6 +26,13 @@ struct Client::pixel{
     int y;
 };
 
+struct Client::meshPixel{
+    int x;
+    int y;
+    int z;
+};
+typedef struct meshPixel meshPixel;
+
 struct Client::Mat{
     float mat[4][4];
     Mat(){
@@ -35,32 +42,10 @@ struct Client::Mat{
                 else mat[i][j]=0.0;
             }
         }
-    };
+    }
 };
 typedef struct Mat Mat;
 
-struct Client::translateMat{
-    float tx,ty,tz;
-    int order;
-    translateMat(): tx(0),ty(0),tz(0),order(10){}
-};
-typedef struct translateMat translateMat;
-
-
-struct Client::rotateMat{
-    const char* axis;
-    float theta;
-    int order;
-    rotateMat(): axis("n"),theta(0),order(10){}
-};
-typedef struct rotateMat rotateMat;
-
-struct Client::scaleMat{
-    float sx,sy,sz;
-    int order;
-    scaleMat(): sx(1),sy(1),sz(1),order(10){}
-};
-typedef struct scaleMat scaleMat;
 
 void Client::nextPage() {
     static int pageNumber = 0;
@@ -72,7 +57,7 @@ void Client::nextPage() {
         draw_rect(0, 0, 750, 750, 0xffffffff);
         draw_rect( 50,  50, 700, 700, 0x00000000);
         drawable->updateScreen();   // you must call this to make the display change.
-        PageNumber(3);
+        PageNumber(4);
         break;
     case 2:
         draw_rect(0, 0, 750, 750, 0xffffffff);
@@ -1113,10 +1098,15 @@ void Client::PageNumber(int page_location){
     else if(page_location==3){
 
         char* filename[] = {"page3.txt"};
-        SimpDrawer(filename);
+        SimpDrawer(filename, 0xffffffff, 0x00000000);
+    }
+    else if(page_location==4){
+
+        char* filename[] = {"page3.txt"};
+        SimpDrawer(filename, 0xff00CC66, 0xff008040);
     }
     else if(page_location==10){
-        depthCuePolygonRenderer(100,100,50,200,400,100,500,600,140,0xffffffff,0x00000000);
+        depthCuePolygonRenderer(398,393,-38,354,206,-90,201,206,38,0xff00CC66,0xff00CC66);
     }
 }
 
@@ -1129,8 +1119,7 @@ int Client::Distance(int x1, int y1, int x2, int y2){
 
 
 
-bool Client::SimpDrawer(char* filename[]){
-    //typedef struct translateMat translateMat;
+bool Client::SimpDrawer(char* filename[], unsigned int nearColour, unsigned int farColour){
     ifstream fin;
 
     fin.open(*filename);// open simp file
@@ -1171,7 +1160,7 @@ bool Client::SimpDrawer(char* filename[]){
         token[lineCount][i] = "~";
         lineCount++;
     }
-    QTextStream(stdout) << "!!! token[" << 0 << "]["<<0<<"] = " << token[0][1] << endl;
+//    QTextStream(stdout) << "!!! token[" << 1 << "]["<<0<<"] = " << token[1][0] << endl;
 //    QTextStream(stdout) << "!!! token[" << 1 << "]["<<0<<"] = " << token[0][10] << endl;
 
 
@@ -1182,7 +1171,7 @@ bool Client::SimpDrawer(char* filename[]){
     ////////////////////////////////////////
     // text file is tokenized             //
     // now use the array to output screen //
-    ///////////////////////////////////////
+    ////////////////////////////////////////
 
     // Define initial Coordinate system
     std::stack<Mat>mstack;
@@ -1196,17 +1185,17 @@ bool Client::SimpDrawer(char* filename[]){
     for(int j=0;j<lineCount;j++){
 
         int i = 0; //command iteration
-        while(token[j][i]!="~"){
+        while(strcmp(token[j][i],"~")!=0){
             if(strcmp(token[j][i],"#")==0){} // do nothing if the line is a comment
             /////////////////
             // CTM Section //
             /////////////////
             // want to only do one push per scope, so need to iterate through
             else if((strcmp(token[j][i],"{"))==0){
+                Mat prev_m = mstack.top();
                 Mat m;
                 int k=j+1;
-                while((strcmp(token[k][i],"translate"))==0 || (strcmp(token[k][i],"scale"))==0 || (strcmp(token[k][i],"scale"))==0){
-                    QTextStream(stdout) <<"!@!"<< token[k][i] <<endl;
+                while((strcmp(token[k][i],"translate"))==0 || (strcmp(token[k][i],"scale"))==0 || (strcmp(token[k][i],"rotate"))==0){
                     if((strcmp(token[k][i],"translate"))==0){
                         m.mat[0][3]=m.mat[0][3]+atof(token[k][i+1]);
                         m.mat[1][3]=m.mat[1][3]+atof(token[k][i+2]);
@@ -1224,17 +1213,13 @@ bool Client::SimpDrawer(char* filename[]){
                         tempm.mat[0][0]=atof(token[k][i+1]);
                         tempm.mat[1][1]=atof(token[k][i+2]);
                         tempm.mat[2][2]=atof(token[k][i+3]);
-                        QTextStream(stdout) << "tok1 "<<tempm.mat[0][0]<<endl;
-                        QTextStream(stdout) << "tok2 "<<tempm.mat[1][1]<<endl;
-                        QTextStream(stdout) << "tok4 "<<tempm.mat[3][3]<<endl;
 
                         for(int ii=0;ii<4;ii++){
                                 for(int jj=0;jj<4;jj++){
                                     for(int kk=0;kk<4;kk++){
                                         tempResult.mat[ii][jj]+= m.mat[ii][kk]*tempm.mat[kk][jj];
-                                        QTextStream(stdout) << tempResult.mat[ii][jj]<<" ";
                                     }
-                                    //QTextStream(stdout) << tempResult.mat[ii][jj]<<" ";
+                                    QTextStream(stdout) << tempResult.mat[ii][jj]<<" ";
                                 }
                                 QTextStream(stdout) <<" "<<endl;
                         }
@@ -1247,8 +1232,7 @@ bool Client::SimpDrawer(char* filename[]){
                         k++;
 
                     }
-                    else if((strcmp(token[k][i],"rotate"))==0){
-                        QTextStream(stdout) << "rotate "<<endl;
+                    else if((strcmp("rotate",token[k][i]))==0){
                         Mat tempm;
                         Mat tempResult;
                         for(int ii=0;ii<4;ii++){
@@ -1258,32 +1242,32 @@ bool Client::SimpDrawer(char* filename[]){
                         }
 
                         if ((strcmp(token[k][i+1],"x"))==0){
-                            tempm.mat[1][1]=cos(atof(token[k][i+2]));
-                            tempm.mat[1][2]=-sin(atof(token[k][i+2]));
-                            tempm.mat[2][1]=sin(atof(token[k][i+2]));
-                            tempm.mat[2][2]=cos(atof(token[k][i+2]));
+                            tempm.mat[1][1]=cos(atof(token[k][i+2])*PI/180);
+                            tempm.mat[1][2]=-sin(atof(token[k][i+2])*PI/180);
+                            tempm.mat[2][1]=sin(atof(token[k][i+2])*PI/180);
+                            tempm.mat[2][2]=cos(atof(token[k][i+2])*PI/180);
                         }
                         else if((strcmp(token[k][i+1],"y"))==0){
-                            tempm.mat[0][0]=cos(atof(token[k][i+2]));
-                            tempm.mat[0][2]=sin(atof(token[k][i+2]));
-                            tempm.mat[2][0]=-sin(atof(token[k][i+2]));
-                            tempm.mat[2][2]=cos(atof(token[k][i+2]));
+                            tempm.mat[0][0]=cos(atof(token[k][i+2])*PI/180);
+                            tempm.mat[0][2]=sin(atof(token[k][i+2])*PI/180);
+                            tempm.mat[2][0]=-sin(atof(token[k][i+2])*PI/180);
+                            tempm.mat[2][2]=cos(atof(token[k][i+2])*PI/180);
                         }
                         else if((strcmp(token[k][i+1],"z"))==0){
-                            tempm.mat[0][0]=cos(atof(token[k][i+2]));
-                            tempm.mat[0][1]=-sin(atof(token[k][i+2]));
-                            tempm.mat[1][0]=sin(atof(token[k][i+2]));
-                            tempm.mat[1][1]=cos(atof(token[k][i+2]));
+                            tempm.mat[0][0]=cos(atof(token[k][i+2])*PI/180);
+                            tempm.mat[0][1]=-sin(atof(token[k][i+2])*PI/180);
+                            tempm.mat[1][0]=sin(atof(token[k][i+2])*PI/180);
+                            tempm.mat[1][1]=cos(atof(token[k][i+2])*PI/180);
                         }
 
                         for(int ii=0;ii<4;ii++){
                                 for(int jj=0;jj<4;jj++){
                                     for(int kk=0;kk<4;kk++){
                                         tempResult.mat[ii][jj]+= m.mat[ii][kk]*tempm.mat[kk][jj];
-                                        QTextStream(stdout) << tempResult.mat[ii][jj]<<" ";
                                     }
-                                    QTextStream(stdout) <<" "<<endl;
+                                    QTextStream(stdout) << tempResult.mat[ii][jj]<<" ";
                                 }
+                                QTextStream(stdout) <<" "<<endl;
                         }
 
                         for(int ii=0;ii<4;ii++){
@@ -1293,9 +1277,29 @@ bool Client::SimpDrawer(char* filename[]){
                         }
                         k++;
                     }
-                    else break;
+                    else{
+                        break;
+                    }
                 }
 
+                // multiply the current CTM by the previous CTM
+                Mat tempResult;
+                //QTextStream(stdout)<<"mult by prev"<<endl;
+                for(int ii=0;ii<4;ii++){
+                        for(int jj=0;jj<4;jj++){
+                            tempResult.mat[ii][jj]=m.mat[ii][jj];
+                            m.mat[ii][jj] = 0;
+                        }
+                }
+                for(int ii=0;ii<4;ii++){
+                        for(int jj=0;jj<4;jj++){
+                            for(int kk=0;kk<4;kk++){
+                                m.mat[ii][jj]+= tempResult.mat[ii][kk]*prev_m.mat[kk][jj];
+                            }
+                            QTextStream(stdout)<<m.mat[ii][jj]<<" ";
+                        }
+                        QTextStream(stdout)<<" "<<endl;
+                }
                 // always push
                 mstack.push(m);
 //                for(int ii=0;ii<4;ii++){
@@ -1333,9 +1337,9 @@ bool Client::SimpDrawer(char* filename[]){
                 for(int ii=0;ii<4;ii++){
                     for(int jj=0;jj<4;jj++){
                         CTM.mat[ii][jj]=mstack.top().mat[ii][jj];
-                        QTextStream(stdout) << CTM.mat[ii][jj]<<" ";
+                        //QTextStream(stdout) << CTM.mat[ii][jj]<<" ";
                     }
-                    QTextStream(stdout)<<" "<<endl;
+                    //QTextStream(stdout)<<" "<<endl;
                 }
 
                 float temp_x1 = atof(token[j][i+1]);
@@ -1359,7 +1363,7 @@ bool Client::SimpDrawer(char* filename[]){
                 z3 = temp_x3*CTM.mat[2][0]+temp_y3*CTM.mat[2][1]+temp_z3*CTM.mat[2][2]+CTM.mat[2][3];
                 QTextStream(stdout)<<"x1y1z1= "<<x1<<" "<<y1<<" "<<z1<<endl<<"x2y2z2= "<<x2<<" "<<y2<<" "<<z2<<endl<<"x3y3z3= "<<x3<<" "<<y3<<" "<<z3<<endl;
                 if(fill==true){
-                    PolygonRenderer(x1,y1,x2,y2,x3,y3,0xffffffff,0xffffffff,0xffffffff);
+                    depthCuePolygonRenderer(x1,y1,z1,x2,y2,z2,x3,y3,z3,nearColour,farColour);
                 }
                 else{
                     Bresenham(x1,y1,x2,y2,0xffffffff,0xffffffff);
@@ -1369,11 +1373,75 @@ bool Client::SimpDrawer(char* filename[]){
 
                 i++;
             }
+            else if((strcmp(token[j][i],"mesh"))==0){
+                meshRenderer(token[j][i+1], mstack.top());
+                i++;
+            }
             else break;
-            QTextStream(stdout)<<"j= "<<j<<endl;
 
         }
     }
+
+    return true;
+}
+
+bool Client::meshRenderer(const char* filename, Mat m){
+    ifstream fin;
+
+    fin.open((char*)filename);// open mesh file
+    if(fin.fail()){// check if open successfully
+        QTextStream(stdout) << "file open error.."<<endl;
+        return false;
+    }
+
+    const char* tempTok[MAX_TOKENS][MAX_TOKENS] = {}; // initialize to 0
+    int lineCount=0;
+    const char* token[MAX_TOKENS][MAX_TOKENS] = {};
+
+    while(!fin.eof()){
+        // read an entire line into memory
+        char buf[MAX_CHARS_PER_LINE];
+
+        fin.getline(buf, MAX_CHARS_PER_LINE);
+        // parse the line into blank-delimited tokens
+        int n = 0; // a for-loop index
+
+        tempTok[lineCount][n] = strtok(buf, DELIMITER); // first token
+
+        if (tempTok[lineCount][0]) // zero if line is blank
+        {
+          for (n = 1; n < MAX_TOKENS; n++)
+          {
+            tempTok[lineCount][n] = strtok(NULL, DELIMITER); // subsequent tokens
+            if (!tempTok[lineCount][n]) break; // no more tokens
+          }
+        }
+
+        int i =0;
+        // process (print) the tokens
+        for (i; i < n; i++){
+//          QTextStream(stdout) << "Token[" << lineCount << "]["<<i<<"] = " << tempTok[lineCount][i] << endl;
+          token[lineCount][i] = strdup(tempTok[lineCount][i]);
+        }
+        token[lineCount][i] = "~";
+        lineCount++;
+    }
+
+    fin.close();
+    //////////////////////
+    // parsing complete //
+    //////////////////////
+
+    int row = atoi(token[0][0]);
+    int col = atoi(token[1][0]);
+    int meshSize = row*col;
+
+    meshPixel gird_points[row][col];
+
+
+
+
+
 
     return true;
 }
