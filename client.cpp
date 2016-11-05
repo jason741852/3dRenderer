@@ -989,7 +989,7 @@ void Client::PageNumber(int page_location){
                 if(i<9){
                     Bresenham(gird_point[i][j].x,gird_point[i][j].y,gird_point[i+1][j].x,gird_point[i+1][j].y,colour1,colour2);
                 }
-                if(i!=0 && i<9 && j<9){
+                if(i!=0 && i<=9 && j<9){
                     Bresenham(gird_point[i][j].x,gird_point[i][j].y,gird_point[i-1][j+1].x,gird_point[i-1][j+1].y,colour1,colour2);
                 }
             }
@@ -1270,7 +1270,7 @@ bool Client::SimpDrawer(char* filename[], unsigned int nearColour, unsigned int 
                 fill = false;
                 i++;
             }
-            else if((strcmp(token[j][i],"fill"))==0){
+            else if((strcmp(token[j][i],"filled"))==0){
                 fill = true;
                 i++;
             }
