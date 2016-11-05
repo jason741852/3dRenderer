@@ -1,0 +1,7 @@
+{
+translate 1 -20 100
+rotate Y 30
+
+scale 0.8 0.5 1
+mesh "mesh.txt"
+}

@@ -52,29 +52,54 @@ void Client::nextPage() {
     pageNumber++;
     //std::cout << "PageNumber " << pageNumber << std::endl;
 
-    switch(pageNumber % 5) {
+    switch(pageNumber % 9) {
     case 1:
         draw_rect(0, 0, 750, 750, 0xffffffff);
         draw_rect( 50,  50, 700, 700, 0x00000000);
         drawable->updateScreen();   // you must call this to make the display change.
-        PageNumber(4);
+        PageNumber(1);
         break;
     case 2:
         draw_rect(0, 0, 750, 750, 0xffffffff);
         draw_rect( 50,  50, 700, 700, 0x00000000);
         drawable->updateScreen();
-        //PageNumber(2);
+        PageNumber(2);
         break;
     case 3:
         draw_rect(0, 0, 750, 750, 0xffffffff);
         draw_rect( 50,  50, 700, 700, 0x00000000);
         drawable->updateScreen();
+        PageNumber(3);
         break;
     case 4:
         draw_rect(0, 0, 750, 750, 0xffffffff);
         draw_rect( 50,  50, 700, 700, 0x00000000);
         drawable->updateScreen();
-        // fall through...
+        PageNumber(4);
+        break;
+    case 5:
+        draw_rect(0, 0, 750, 750, 0xffffffff);
+        draw_rect( 50,  50, 700, 700, 0x00000000);
+        drawable->updateScreen();
+        PageNumber(5);
+        break;
+    case 6:
+        draw_rect(0, 0, 750, 750, 0xffffffff);
+        draw_rect( 50,  50, 700, 700, 0x00000000);
+        drawable->updateScreen();
+        PageNumber(6);
+        break;
+    case 7:
+        draw_rect(0, 0, 750, 750, 0xffffffff);
+        draw_rect( 50,  50, 700, 700, 0x00000000);
+        drawable->updateScreen();
+        PageNumber(7);
+        break;
+    case 8:
+        draw_rect(0, 0, 750, 750, 0xffffffff);
+        draw_rect( 50,  50, 700, 700, 0x00000000);
+        drawable->updateScreen();
+        PageNumber(8);
         break;
 
     default:
@@ -104,62 +129,40 @@ void Client::DDA(float x1, float y1, float x2, float y2, unsigned int color){
     float m = (float)dy/(float)dx;
     float b = y1-m*x1;
     float y;
-    //QTextStream(stdout)<<"(x1,y1)=("<<x1<<","<<y1<<"),(x2,y2)=("<<x2<<","<<y2<<"), m= "<<m<<endl;
     // check slope to see which octant
     if(abs(m)>=0 && abs(m)<1)
     {
-        //QTextStream(stdout)<<"in I"<<endl;
         int i = 0;
         if(dx>0){
-            //QTextStream(stdout)<<"cond. 1"<<endl;
             for(float x = x1; x<x2; x++){
                     y = m*x + b;
-                    //QTextStream(stdout)<<"y= "<<y<<" x= "<<x<<" m: "<<m<<endl;
                     drawable->setPixel(x,y,color);
                     i++;
-    //                if(i>40)
-    //                {
-    //                    QTextStream(stdout)<<"pixels drawn: "<<i<<endl;
-    //                }
                 }
 
         }
         else{
-            //QTextStream(stdout)<<"cond. 2"<<endl;
             for(float x = x1; x>x2; x--){
                     y = m*x + b;
-                    //QTextStream(stdout)<<"y= "<<y<<" x= "<<x<<" m: "<<m<<endl;
                     drawable->setPixel(x,y,color);
                     i++;
-    //                if(i>40)
-    //                {
-    //                    QTextStream(stdout)<<"pixels drawn: "<<i<<endl;
-    //                }
                 }
         }
 
     }
     else{
         if(dy>0){
-            //QTextStream(stdout)<<"cond. 3"<<endl;
-
-            //QTextStream(stdout)<<"in II"<<endl;
             float x;
             for(float y=y1; y<y2; y++){
                 x = (y-b)/m;
-                //QTextStream(stdout)<<"x= "<<x<<endl;
 
                 drawable->setPixel(x,y,color);
             }
         }
         else{
-            //QTextStream(stdout)<<"cond. 4"<<endl;
-
-            //QTextStream(stdout)<<"in II"<<endl;
             float x;
             for(float y=y1; y>y2; y--){
                 x = (y-b)/m;
-                //QTextStream(stdout)<<"x= "<<x<<endl;
 
                 drawable->setPixel(x,y,color);
             }
@@ -198,12 +201,6 @@ void Client::Bresenham(int x1, int y1, int x2, int y2, unsigned int color1, unsi
 
     unsigned int current_Color;
 
-
-
-
-
-    //QTextStream(stdout)<<"(x1,y1)=("<<x1<<","<<y1<<"),(x2,y2)=("<<x2<<","<<y2<<")"<<endl;
-    //int y = y1;
     drawable->setPixel(x1,y1,color1);
 
     if(dx>dy){
@@ -215,9 +212,6 @@ void Client::Bresenham(int x1, int y1, int x2, int y2, unsigned int color1, unsi
         if(y2>y1){
             int y = y1;
             if(x2>x1){
-                //QTextStream(stdout)<<"1st cond. "<<endl;
-                //QTextStream(stdout)<<"r1= "<<r1<<" g1= "<<g1<<" b1= "<<b1<<endl;
-                //QTextStream(stdout)<<"r2= "<<r2<<" g2= "<<g2<<" b2= "<<b2<<endl;
                 int ddx = x2 - x1;
                 float dr = r2-r1;
                 dr = dr/ddx;
@@ -229,13 +223,11 @@ void Client::Bresenham(int x1, int y1, int x2, int y2, unsigned int color1, unsi
                 float temp_r = r1;
                 float temp_g = g1;
                 float temp_b = b1;
-                //QTextStream(stdout)<<"dr= "<<dr<<" dg= "<<dg<<" db= "<<db<<endl;
                 // Traverse along x+
                 for(int x=x1+1; x<=x2; x++){
                     if (err>=0){
                         err = err + t2;
                         y++;
-                        //QTextStream(stdout)<<"y increasing"<<endl;
                     }
                     else{
                         err = err+two_dy;
@@ -247,14 +239,11 @@ void Client::Bresenham(int x1, int y1, int x2, int y2, unsigned int color1, unsi
                     rounded_g = round(temp_g);
                     rounded_b = round(temp_b);
 
-                    //QTextStream(stdout)<<"rounded_r= "<<rounded_r<<" rounded_g= "<<rounded_g<<" rounded_b= "<<rounded_b<<endl;
                     current_Color = (0xff<<24) + ((rounded_r & 0xff)<<16) + ((rounded_g & 0xff)<<8) + (rounded_b & 0xff);
-                    //QTextStream(stdout)<<"1st Drawn"<<endl;
                     drawable->setPixel(x,y,current_Color);
                 }
             }
             else{
-                //QTextStream(stdout)<<"2nd cond. "<<endl;
                 int ddx = x1 - x2;
                 float dr = r2-r1;
                 dr = dr/ddx;
@@ -271,7 +260,6 @@ void Client::Bresenham(int x1, int y1, int x2, int y2, unsigned int color1, unsi
                     if (err>=0){
                         err = err + t2;
                         y++;
-                        //QTextStream(stdout)<<"y increasing"<<endl;
                     }
                     else{
                         err = err+two_dy;
@@ -284,14 +272,12 @@ void Client::Bresenham(int x1, int y1, int x2, int y2, unsigned int color1, unsi
                     rounded_b = round(temp_b);
 
                     current_Color = (0xff<<24) + ((rounded_r & 0xff)<<16) + ((rounded_g & 0xff)<<8) + (rounded_b & 0xff);
-                    //QTextStream(stdout)<<"1st Drawn"<<endl;
                     drawable->setPixel(x,y,current_Color);
                 }
             }
         }
         else{
             if(x2>x1){
-                //QTextStream(stdout)<<"3rd cond. "<<endl;
                 int ddx = x2 - x1;
                 float dr = r2-r1;
                 dr = dr/ddx;
@@ -303,14 +289,11 @@ void Client::Bresenham(int x1, int y1, int x2, int y2, unsigned int color1, unsi
                 float temp_r = r1;
                 float temp_g = g1;
                 float temp_b = b1;
-                //QTextStream(stdout)<<"2nd cond. "<<endl;
                 int y = y1;
-                // Traverse along x+
                 for(int x=x1+1; x<=x2; x++){
                     if (err>=0){
                         err = err + t2;
                         y--;
-                        //QTextStream(stdout)<<"y decreasing"<<endl;
                     }
                     else{
                         err = err+two_dy;
@@ -323,13 +306,10 @@ void Client::Bresenham(int x1, int y1, int x2, int y2, unsigned int color1, unsi
                     rounded_b = round(temp_b);
 
                     current_Color = (0xff<<24) + ((rounded_r & 0xff)<<16) + ((rounded_g & 0xff)<<8) + (rounded_b & 0xff);
-                    //QTextStream(stdout)<<"(x,y)= ("<<x<<","<<y<<")"<<endl;
-                    //QTextStream(stdout)<<"1st Drawn"<<endl;
                     drawable->setPixel(x,y,current_Color);
                 }
             }
             else{
-                //QTextStream(stdout)<<"4th cond. "<<endl;
                 int ddx = x1 - x2;
                 float dr = r2-r1;
                 dr = dr/ddx;
@@ -342,12 +322,10 @@ void Client::Bresenham(int x1, int y1, int x2, int y2, unsigned int color1, unsi
                 float temp_g = g1;
                 float temp_b = b1;
                 int y = y1;
-                // Traverse along x-
                 for(int x=x1-1; x>=x2; x--){
                     if (err>=0){
                         err = err + t2;
                         y--;
-                        //QTextStream(stdout)<<"y decreasing"<<endl;
                     }
                     else{
                         err = err+two_dy;
@@ -360,8 +338,6 @@ void Client::Bresenham(int x1, int y1, int x2, int y2, unsigned int color1, unsi
                     rounded_b = round(temp_b);
 
                     current_Color = (0xff<<24) + ((rounded_r & 0xff)<<16) + ((rounded_g & 0xff)<<8) + (rounded_b & 0xff);
-                    //QTextStream(stdout)<<"(x,y)= ("<<x<<","<<y<<")"<<endl;
-                    //QTextStream(stdout)<<"1st Drawn"<<endl;
                     drawable->setPixel(x,y,current_Color);
                 }
             }
@@ -372,7 +348,6 @@ void Client::Bresenham(int x1, int y1, int x2, int y2, unsigned int color1, unsi
         int t2 = two_dx-two_dy;
         if(x2>x1){
                 if(y2>y1){
-                    //QTextStream(stdout)<<"5th cond. "<<endl;
                     int ddy = y2 - y1;
                     float dr = r2-r1;
                     dr = dr/ddy;
@@ -391,7 +366,6 @@ void Client::Bresenham(int x1, int y1, int x2, int y2, unsigned int color1, unsi
                         if (err>=0){
                             err = err + t2;
                             x++;
-                            //QTextStream(stdout)<<"x increasing"<<endl;
                         }
                         else{
                             err = err+two_dx;
@@ -409,7 +383,6 @@ void Client::Bresenham(int x1, int y1, int x2, int y2, unsigned int color1, unsi
                     }
                 }
                 else{
-                    //QTextStream(stdout)<<"6th cond. "<<endl;
                     int ddy = y1 - y2;
                     float dr = r2-r1;
                     dr = dr/ddy;
@@ -423,12 +396,10 @@ void Client::Bresenham(int x1, int y1, int x2, int y2, unsigned int color1, unsi
                     float temp_b = b1;
 
                     int x = x1;
-                    // Traverse along y-
                     for(int y=y1+1; y>=y2; y--){
                         if (err>=0){
                             err = err + t2;
                             x++;
-                            //QTextStream(stdout)<<"x increasing"<<endl;
                         }
                         else{
                             err = err+two_dx;
@@ -448,7 +419,6 @@ void Client::Bresenham(int x1, int y1, int x2, int y2, unsigned int color1, unsi
         }
         else{
             if(y2>y1){
-                //QTextStream(stdout)<<"7th cond. "<<endl;
                 int ddy = y2 - y1;
                 float dr = r2-r1;
                 dr = dr/ddy;
@@ -467,7 +437,6 @@ void Client::Bresenham(int x1, int y1, int x2, int y2, unsigned int color1, unsi
                     if (err>=0){
                         err = err + t2;
                         x--;
-                        //QTextStream(stdout)<<"x decreasing"<<endl;
                     }
                     else{
                         err = err+two_dx;
@@ -485,7 +454,6 @@ void Client::Bresenham(int x1, int y1, int x2, int y2, unsigned int color1, unsi
                 }
             }
             else{
-                //QTextStream(stdout)<<"8th cond. "<<endl;
                 int ddy = y1 - y2;
                 float dr = r2-r1;
                 dr = dr/ddy;
@@ -504,7 +472,6 @@ void Client::Bresenham(int x1, int y1, int x2, int y2, unsigned int color1, unsi
                     if (err>=0){
                         err = err + t2;
                         x--;
-                        //QTextStream(stdout)<<"x decreasing"<<endl;
                     }
                     else{
                         err = err+two_dx;
@@ -663,9 +630,6 @@ void Client::PolygonRenderer (float xx1, float yy1, float xx2, float yy2, float 
         QTextStream(stdout)<<"p2p3 inf slope"<<endl;
     }
 
-    //QTextStream(stdout)<<"(y,x)= "<<x1<<","<<y1<<" ->  "<<x2<<","<<y2<<endl;
-    //QTextStream(stdout)<<"Slope= "<<long_m<<" || x1,y1="<<x1<<","<<y1<<"|| x2,y2="<<x2<<","<<y2<<"|| x3,y3="<<x3<<","<<y3<<endl;
-
     if(abs(long_m)<1){
         int long_ddx = abs(x2 - x1);
         float long_dr = r2-r1;
@@ -692,8 +656,6 @@ void Client::PolygonRenderer (float xx1, float yy1, float xx2, float yy2, float 
         b_db = b_db/b_ddx;
 
         if(long_dx>0){// x1<x2
-            //QTextStream(stdout)<<"long_ddx, a_ddx, b_ddx= "<<long_ddx<<", "<<a_ddx<<", "<<b_ddx<<endl;
-            //QTextStream(stdout)<<"a_dr, a_dg, a_db= "<<a_dr<<", "<<a_dg<<", "<<a_db<<endl;
             QTextStream(stdout)<<"1"<<endl;
             for(float x = x1+1;x<=x2;x++){
                 long_y=long_m*x+long_b;
@@ -721,8 +683,6 @@ void Client::PolygonRenderer (float xx1, float yy1, float xx2, float yy2, float 
                     a_rounded_r = round(temp_a_r);
                     a_rounded_g = round(temp_a_g);
                     a_rounded_b = round(temp_a_b);
-                    //QTextStream(stdout)<<"a_rounded_r= "<<a_rounded_r<<" a_rounded_g= "<<a_rounded_g<<" a_rounded_b= "<<a_rounded_b<<endl;
-
 
                     current_Color2 = (0xff<<24) + ((a_rounded_r & 0xff)<<16) + ((a_rounded_g & 0xff)<<8) + (a_rounded_b & 0xff);
 
@@ -744,7 +704,6 @@ void Client::PolygonRenderer (float xx1, float yy1, float xx2, float yy2, float 
                     b_rounded_b = round(temp_b_b);
 
                     current_Color3 = (0xff<<24) + ((b_rounded_r & 0xff)<<16) + ((b_rounded_g & 0xff)<<8) + (b_rounded_b & 0xff);
-                    //QTextStream(stdout)<<"a_rounded_r= "<<a_rounded_r<<" a_rounded_g= "<<a_rounded_g<<" a_rounded_b= "<<a_rounded_b<<endl;
                     Bresenham(x,long_y,x,b_y,current_Color1,current_Color3);
                 }
 
@@ -777,8 +736,6 @@ void Client::PolygonRenderer (float xx1, float yy1, float xx2, float yy2, float 
                     a_rounded_r = round(temp_a_r);
                     a_rounded_g = round(temp_a_g);
                     a_rounded_b = round(temp_a_b);
-                    //QTextStream(stdout)<<"a_rounded_r= "<<a_rounded_r<<" a_rounded_g= "<<a_rounded_g<<" a_rounded_b= "<<a_rounded_b<<endl;
-
 
                     current_Color2 = (0xff<<24) + ((a_rounded_r & 0xff)<<16) + ((a_rounded_g & 0xff)<<8) + (a_rounded_b & 0xff);
 
@@ -833,7 +790,10 @@ void Client::PolygonRenderer (float xx1, float yy1, float xx2, float yy2, float 
         if(long_dy>0){
             QTextStream(stdout)<<"3"<<endl;
             for(float y=y1+1;y<=y2;y++){
-                long_x=(y-long_b)/long_m;
+                if(VertLine_p1p2){
+                    long_x=x1;
+                }
+                else long_x=(y-long_b)/long_m;
 
                 temp_long_r = temp_long_r+long_dr;
                 temp_long_g = temp_long_g+long_dg;
@@ -858,8 +818,6 @@ void Client::PolygonRenderer (float xx1, float yy1, float xx2, float yy2, float 
                     a_rounded_r = round(temp_a_r);
                     a_rounded_g = round(temp_a_g);
                     a_rounded_b = round(temp_a_b);
-                    //QTextStream(stdout)<<"a_rounded_r= "<<a_rounded_r<<" a_rounded_g= "<<a_rounded_g<<" a_rounded_b= "<<a_rounded_b<<endl;
-
 
                     current_Color2 = (0xff<<24) + ((a_rounded_r & 0xff)<<16) + ((a_rounded_g & 0xff)<<8) + (a_rounded_b & 0xff);
 
@@ -889,7 +847,10 @@ void Client::PolygonRenderer (float xx1, float yy1, float xx2, float yy2, float 
         else{
             QTextStream(stdout)<<"4"<<endl;
             for(float y=y1-1; y>=y2; y--){
-                long_x=(y-long_b)/long_m;
+                if(VertLine_p1p2){
+                    long_x=x1;
+                }
+                else long_x=(y-long_b)/long_m;
 
                 temp_long_r = temp_long_r+long_dr;
                 temp_long_g = temp_long_g+long_dg;
@@ -914,8 +875,6 @@ void Client::PolygonRenderer (float xx1, float yy1, float xx2, float yy2, float 
                     a_rounded_r = round(temp_a_r);
                     a_rounded_g = round(temp_a_g);
                     a_rounded_b = round(temp_a_b);
-                    //QTextStream(stdout)<<"a_rounded_r= "<<a_rounded_r<<" a_rounded_g= "<<a_rounded_g<<" a_rounded_b= "<<a_rounded_b<<endl;
-
 
                     current_Color2 = (0xff<<24) + ((a_rounded_r & 0xff)<<16) + ((a_rounded_g & 0xff)<<8) + (a_rounded_b & 0xff);
 
@@ -948,60 +907,47 @@ void Client::PolygonRenderer (float xx1, float yy1, float xx2, float yy2, float 
 
 void Client::depthCuePolygonRenderer(int x1,int y1,int z1, int x2, int y2, int z2, int x3, int y3, int z3, unsigned int nearColor, unsigned farColor){
     // define zNear and zFar clipping planes
+    if(z1<=200 && z1>=0 && z2<=200 && z2>=0 && z3<=200 && z3>=0){
+        float rNear = (nearColor>>16)& 0xff;
+        float gNear = (nearColor>>8) & 0xff;
+        float bNear = nearColor & 0xff;
+        float rFar = (farColor>>16)& 0xff;
+        float gFar = (farColor>>8) & 0xff;
+        float bFar = farColor & 0xff;
 
-    float rNear = (nearColor>>16)& 0xff;
-    float gNear = (nearColor>>8) & 0xff;
-    float bNear = nearColor & 0xff;
-    float rFar = (farColor>>16)& 0xff;
-    float gFar = (farColor>>8) & 0xff;
-    float bFar = farColor & 0xff;
+        float dr = rFar-rNear;
+        dr = dr/200;
+        float dg = gFar-gNear;
+        dg = dg/200;
+        float db = bFar - bNear;
+        db = db/200;
 
-    float dr = rFar-rNear;
-    dr = dr/200;
-    float dg = gFar-gNear;
-    dg = dg/200;
-    float db = bFar - bNear;
-    db = db/200;
+        float z1_percentage = z1/2;
+        z1_percentage = z1_percentage/100;
+        z1_percentage = 1 - z1_percentage;
+        float z2_percentage = z2/2;
+        z2_percentage = z2_percentage/100;
+        z2_percentage = 1 - z2_percentage;
+        float z3_percentage = z3/2;
+        z3_percentage = z3_percentage/100;
+        z3_percentage = 1 - z3_percentage;
 
-    float z1_percentage = z1/2;
-    z1_percentage = z1_percentage/100;
-    z1_percentage = 1 - z1_percentage;
-    float z2_percentage = z2/2;
-    z2_percentage = z2_percentage/100;
-    z2_percentage = 1 - z2_percentage;
-    float z3_percentage = z3/2;
-    z3_percentage = z3_percentage/100;
-    z3_percentage = 1 - z3_percentage;
-    QTextStream(stdout)<<"z1 z2 z3 percentage= "<<z1_percentage<<" "<<z2_percentage<<" "<<z3_percentage<<endl;
-//    int r1 = round(rNear+dr*(z1/2));
-//    int g1 = round(gNear+dg*(z1/2));
-//    int b1 = round(bNear+db*(z1/2));
-//    int r2 = round(rNear+dr*(z2/2));
-//    int g2 = round(gNear+dg*(z2/2));
-//    int b2 = round(bNear+db*(z2/2));
-//    int r3 = round(rNear+dr*(z3/2));
-//    int g3 = round(gNear+dg*(z3/2));
-//    int b3 = round(bNear+db*(z3/2));
+        int r1 = round(rNear*z1_percentage);
+        int g1 = round(gNear*z1_percentage);
+        int b1 = round(bNear*z1_percentage);
+        int r2 = round(rNear*z2_percentage);
+        int g2 = round(gNear*z2_percentage);
+        int b2 = round(bNear*z2_percentage);
+        int r3 = round(rNear*z3_percentage);
+        int g3 = round(gNear*z3_percentage);
+        int b3 = round(bNear*z3_percentage);
 
-    int r1 = round(rNear*z1_percentage);
-    int g1 = round(gNear*z1_percentage);
-    int b1 = round(bNear*z1_percentage);
-    int r2 = round(rNear*z2_percentage);
-    int g2 = round(gNear*z2_percentage);
-    int b2 = round(bNear*z2_percentage);
-    int r3 = round(rNear*z3_percentage);
-    int g3 = round(gNear*z3_percentage);
-    int b3 = round(bNear*z3_percentage);
-    QTextStream(stdout)<<"rN,gN,bN,rF,gF,bF= "<<rNear<<" "<<gNear<<" "<<bNear<<" "<<rFar<<" "<<gFar<<" "<<bFar<<" "<<endl;
-    QTextStream(stdout)<<"r1,g1,b1,r2,g2,b2,r3,g3,b3= "<<r1<<","<<g1<<","<<b1<<","<<r2<<","<<g2<<","<<b2<<","<<r3<<","<<g3<<","<<b3<<endl;
+        unsigned int current_Color1 = (0xff<<24) + ((r1 & 0xff)<<16) + ((g1 & 0xff)<<8) + (b1 & 0xff);
+        unsigned int current_Color2 = (0xff<<24) + ((r2 & 0xff)<<16) + ((g2 & 0xff)<<8) + (b2 & 0xff);
+        unsigned int current_Color3 = (0xff<<24) + ((r3 & 0xff)<<16) + ((g3 & 0xff)<<8) + (b3 & 0xff);
 
-    unsigned int current_Color1 = (0xff<<24) + ((r1 & 0xff)<<16) + ((g1 & 0xff)<<8) + (b1 & 0xff);
-    unsigned int current_Color2 = (0xff<<24) + ((r2 & 0xff)<<16) + ((g2 & 0xff)<<8) + (b2 & 0xff);
-    unsigned int current_Color3 = (0xff<<24) + ((r3 & 0xff)<<16) + ((g3 & 0xff)<<8) + (b3 & 0xff);
-
-    PolygonRenderer(x1,y1,x2,y2,x3,y3,current_Color1,current_Color2,current_Color3);
-
-
+        PolygonRenderer(x1,y1,x2,y2,x3,y3,current_Color1,current_Color2,current_Color3);
+    }
 }
 
 
@@ -1024,8 +970,6 @@ void Client::PageNumber(int page_location){
                 gird_point[i][j].x += shift_x;
                 gird_point[i][j].y += shift_y;
                 drawable->setPixel(gird_point[i][j].x,gird_point[i][j].y,0xffffffff);
-//                QTextStream(stdout)<<"(x1,y1)=("<<gird_point[i][j].x<<",";
-//                QTextStream(stdout)<<gird_point[i][j].y<<")  ";
             }
         }
         for(int i=0;i<=9;i++){
@@ -1068,7 +1012,6 @@ void Client::PageNumber(int page_location){
                 shift_y = qrand() % 20;
                 gird_point[i][j].x += shift_x;
                 gird_point[i][j].y += shift_y;
-                drawable->setPixel(gird_point[i][j].x,gird_point[i][j].y,0xffffffff);
                 QTextStream(stdout)<<"(x1,y1)=("<<gird_point[i][j].x<<",";
                 QTextStream(stdout)<<gird_point[i][j].y<<")  ";
             }
@@ -1102,11 +1045,24 @@ void Client::PageNumber(int page_location){
     }
     else if(page_location==4){
 
-        char* filename[] = {"page3.txt"};
+        char* filename[] = {"page4.txt"};
         SimpDrawer(filename, 0xff00CC66, 0xff008040);
     }
-    else if(page_location==10){
-        depthCuePolygonRenderer(398,393,-38,354,206,-90,201,206,38,0xff00CC66,0xff00CC66);
+    else if(page_location==5){
+        char* filename[] = {"page5.txt"};
+        SimpDrawer(filename, 0xffffffff, 0x00000000);
+    }
+    else if(page_location==6){
+        char* filename[] = {"test1.simp"};
+        SimpDrawer(filename, 0xffffffff, 0x00000000);
+    }
+    else if(page_location==7){
+        char* filename[] = {"test2.simp"};
+        SimpDrawer(filename, 0xffffffff, 0x00000000);
+    }
+    else if(page_location==8){
+        char* filename[] = {"test3.simp"};
+        SimpDrawer(filename, 0xffffffff, 0x00000000);
     }
 }
 
@@ -1154,14 +1110,11 @@ bool Client::SimpDrawer(char* filename[], unsigned int nearColour, unsigned int 
         int i =0;
         // process (print) the tokens
         for (i; i < n; i++){
-//          QTextStream(stdout) << "Token[" << lineCount << "]["<<i<<"] = " << tempTok[lineCount][i] << endl;
           token[lineCount][i] = strdup(tempTok[lineCount][i]);
         }
         token[lineCount][i] = "~";
         lineCount++;
     }
-//    QTextStream(stdout) << "!!! token[" << 1 << "]["<<0<<"] = " << token[1][0] << endl;
-//    QTextStream(stdout) << "!!! token[" << 1 << "]["<<0<<"] = " << token[0][10] << endl;
 
 
 
@@ -1177,6 +1130,12 @@ bool Client::SimpDrawer(char* filename[], unsigned int nearColour, unsigned int 
     std::stack<Mat>mstack;
     Mat m;
     mstack.push(m);
+    Mat world_m;
+    world_m.mat[0][0]=3.25;
+    world_m.mat[1][1]=3.25;
+    world_m.mat[0][3]=325;
+    world_m.mat[1][3]=325;
+
     bool fill = true;
 
     int x1,x2,x3,y1,y2,y3,z1,z2,z3;// temp variables for assigning polygon
@@ -1219,9 +1178,7 @@ bool Client::SimpDrawer(char* filename[], unsigned int nearColour, unsigned int 
                                     for(int kk=0;kk<4;kk++){
                                         tempResult.mat[ii][jj]+= m.mat[ii][kk]*tempm.mat[kk][jj];
                                     }
-                                    QTextStream(stdout) << tempResult.mat[ii][jj]<<" ";
                                 }
-                                QTextStream(stdout) <<" "<<endl;
                         }
 
                         for(int ii=0;ii<4;ii++){
@@ -1241,19 +1198,19 @@ bool Client::SimpDrawer(char* filename[], unsigned int nearColour, unsigned int 
                                 }
                         }
 
-                        if ((strcmp(token[k][i+1],"x"))==0){
+                        if ((strcmp(token[k][i+1],"X"))==0){
                             tempm.mat[1][1]=cos(atof(token[k][i+2])*PI/180);
                             tempm.mat[1][2]=-sin(atof(token[k][i+2])*PI/180);
                             tempm.mat[2][1]=sin(atof(token[k][i+2])*PI/180);
                             tempm.mat[2][2]=cos(atof(token[k][i+2])*PI/180);
                         }
-                        else if((strcmp(token[k][i+1],"y"))==0){
+                        else if((strcmp(token[k][i+1],"Y"))==0){
                             tempm.mat[0][0]=cos(atof(token[k][i+2])*PI/180);
                             tempm.mat[0][2]=sin(atof(token[k][i+2])*PI/180);
                             tempm.mat[2][0]=-sin(atof(token[k][i+2])*PI/180);
                             tempm.mat[2][2]=cos(atof(token[k][i+2])*PI/180);
                         }
-                        else if((strcmp(token[k][i+1],"z"))==0){
+                        else if((strcmp(token[k][i+1],"Z"))==0){
                             tempm.mat[0][0]=cos(atof(token[k][i+2])*PI/180);
                             tempm.mat[0][1]=-sin(atof(token[k][i+2])*PI/180);
                             tempm.mat[1][0]=sin(atof(token[k][i+2])*PI/180);
@@ -1265,9 +1222,7 @@ bool Client::SimpDrawer(char* filename[], unsigned int nearColour, unsigned int 
                                     for(int kk=0;kk<4;kk++){
                                         tempResult.mat[ii][jj]+= m.mat[ii][kk]*tempm.mat[kk][jj];
                                     }
-                                    QTextStream(stdout) << tempResult.mat[ii][jj]<<" ";
                                 }
-                                QTextStream(stdout) <<" "<<endl;
                         }
 
                         for(int ii=0;ii<4;ii++){
@@ -1284,7 +1239,6 @@ bool Client::SimpDrawer(char* filename[], unsigned int nearColour, unsigned int 
 
                 // multiply the current CTM by the previous CTM
                 Mat tempResult;
-                //QTextStream(stdout)<<"mult by prev"<<endl;
                 for(int ii=0;ii<4;ii++){
                         for(int jj=0;jj<4;jj++){
                             tempResult.mat[ii][jj]=m.mat[ii][jj];
@@ -1296,18 +1250,10 @@ bool Client::SimpDrawer(char* filename[], unsigned int nearColour, unsigned int 
                             for(int kk=0;kk<4;kk++){
                                 m.mat[ii][jj]+= tempResult.mat[ii][kk]*prev_m.mat[kk][jj];
                             }
-                            QTextStream(stdout)<<m.mat[ii][jj]<<" ";
                         }
-                        QTextStream(stdout)<<" "<<endl;
                 }
                 // always push
                 mstack.push(m);
-//                for(int ii=0;ii<4;ii++){
-//                    for(int jj=0;jj<4;jj++){
-//                        QTextStream(stdout)<<mstack.top().mat[ii][jj]<<" ";
-//                    }
-//                    QTextStream(stdout)<<" "<<endl;
-//                }
                 i++;
             }
             else if((strcmp(token[j][i],"}"))==0){
@@ -1333,13 +1279,21 @@ bool Client::SimpDrawer(char* filename[], unsigned int nearColour, unsigned int 
             // Render Section //
             ////////////////////
             else if((strcmp(token[j][i],"polygon"))==0){
+                Mat tempResult;
                 Mat CTM;
                 for(int ii=0;ii<4;ii++){
                     for(int jj=0;jj<4;jj++){
-                        CTM.mat[ii][jj]=mstack.top().mat[ii][jj];
-                        //QTextStream(stdout) << CTM.mat[ii][jj]<<" ";
+                        tempResult.mat[ii][jj]=mstack.top().mat[ii][jj];
+                        CTM.mat[ii][jj]=0;
                     }
-                    //QTextStream(stdout)<<" "<<endl;
+                }
+
+                for(int ii=0;ii<4;ii++){
+                        for(int jj=0;jj<4;jj++){
+                            for(int kk=0;kk<4;kk++){
+                                CTM.mat[ii][jj]+= world_m.mat[ii][kk]*tempResult.mat[kk][jj];
+                            }
+                        }
                 }
 
                 float temp_x1 = atof(token[j][i+1]);
@@ -1361,7 +1315,7 @@ bool Client::SimpDrawer(char* filename[], unsigned int nearColour, unsigned int 
                 x3 = temp_x3*CTM.mat[0][0]+temp_y3*CTM.mat[0][1]+temp_z3*CTM.mat[0][2]+CTM.mat[0][3];
                 y3 = temp_x3*CTM.mat[1][0]+temp_y3*CTM.mat[1][1]+temp_z3*CTM.mat[1][2]+CTM.mat[1][3];
                 z3 = temp_x3*CTM.mat[2][0]+temp_y3*CTM.mat[2][1]+temp_z3*CTM.mat[2][2]+CTM.mat[2][3];
-                QTextStream(stdout)<<"x1y1z1= "<<x1<<" "<<y1<<" "<<z1<<endl<<"x2y2z2= "<<x2<<" "<<y2<<" "<<z2<<endl<<"x3y3z3= "<<x3<<" "<<y3<<" "<<z3<<endl;
+
                 if(fill==true){
                     depthCuePolygonRenderer(x1,y1,z1,x2,y2,z2,x3,y3,z3,nearColour,farColour);
                 }
@@ -1374,7 +1328,24 @@ bool Client::SimpDrawer(char* filename[], unsigned int nearColour, unsigned int 
                 i++;
             }
             else if((strcmp(token[j][i],"mesh"))==0){
-                meshRenderer(token[j][i+1], mstack.top());
+                Mat tempResult;
+                Mat CTM;
+                for(int ii=0;ii<4;ii++){
+                    for(int jj=0;jj<4;jj++){
+                        tempResult.mat[ii][jj]=mstack.top().mat[ii][jj];
+                        CTM.mat[ii][jj]=0;
+                    }
+                }
+
+                for(int ii=0;ii<4;ii++){
+                        for(int jj=0;jj<4;jj++){
+                            for(int kk=0;kk<4;kk++){
+                                CTM.mat[ii][jj]+= world_m.mat[ii][kk]*tempResult.mat[kk][jj];
+                            }
+                        }
+                }
+
+                meshRenderer(token[j][i+1], CTM,nearColour,farColour);
                 i++;
             }
             else break;
@@ -1385,7 +1356,7 @@ bool Client::SimpDrawer(char* filename[], unsigned int nearColour, unsigned int 
     return true;
 }
 
-bool Client::meshRenderer(const char* filename, Mat m){
+bool Client::meshRenderer(const char* filename, Mat m, unsigned int nearColour, unsigned int farColour){
     ifstream fin;
 
     fin.open((char*)filename);// open mesh file
@@ -1420,7 +1391,6 @@ bool Client::meshRenderer(const char* filename, Mat m){
         int i =0;
         // process (print) the tokens
         for (i; i < n; i++){
-//          QTextStream(stdout) << "Token[" << lineCount << "]["<<i<<"] = " << tempTok[lineCount][i] << endl;
           token[lineCount][i] = strdup(tempTok[lineCount][i]);
         }
         token[lineCount][i] = "~";
@@ -1435,13 +1405,50 @@ bool Client::meshRenderer(const char* filename, Mat m){
     int row = atoi(token[0][0]);
     int col = atoi(token[1][0]);
     int meshSize = row*col;
+    QTextStream(stdout)<<"MESH"<<endl;
 
-    meshPixel gird_points[row][col];
+    meshPixel grid_points[row][col];
+    int colCounter=2;
+    for(int i=0;i<4;i++){
+        for(int j=0;j<4;j++){
+            QTextStream(stdout)<<m.mat[i][j]<<" ";
+        }
+        QTextStream(stdout)<<" "<<endl;
+    }
 
+    for(int i=0; i<row;i++){
+        for(int j=0;j<col;j++){
+            grid_points[i][j].x = atoi(token[colCounter][0]);
+            grid_points[i][j].y = atoi(token[colCounter][1]);
+            grid_points[i][j].z = atoi(token[colCounter][2]);
+            colCounter++;
 
+        }
+        QTextStream(stdout)<<" "<<endl;
+    }
 
+     //transoform teh grid points by CTM
+    for(int i=0; i<row; i++){
+        for(int j=0;j<col;j++){
+            float temp_x1 = grid_points[i][j].x;
+            float temp_y1 = grid_points[i][j].y;
+            float temp_z1 = grid_points[i][j].z;
 
-
+            grid_points[i][j].x = temp_x1*m.mat[0][0]+temp_y1*m.mat[0][1]+temp_z1*m.mat[0][2]+m.mat[0][3];
+            grid_points[i][j].y = temp_x1*m.mat[1][0]+temp_y1*m.mat[1][1]+temp_z1*m.mat[1][2]+m.mat[1][3];
+            grid_points[i][j].z = temp_x1*m.mat[2][0]+temp_y1*m.mat[2][1]+temp_z1*m.mat[2][2]+m.mat[2][3];
+            QTextStream(stdout)<<grid_points[i][j].x<<" "<<grid_points[i][j].y<<" "<<grid_points[i][j].z<<" ";
+        }
+        QTextStream(stdout)<<" "<<endl;
+    }
+    for(int i=0; i<row;i++){
+        for (int j=0;j<col-1;j++){
+            if(j<col && i<row-1){
+                depthCuePolygonRenderer(grid_points[i][j].x,grid_points[i][j].y,grid_points[i][j].z,grid_points[i][j+1].x,grid_points[i][j+1].y,grid_points[i][j+1].z,grid_points[i+1][j].x,grid_points[i+1][j].y,grid_points[i+1][j].z,nearColour,farColour);
+                depthCuePolygonRenderer(grid_points[i+1][j].x,grid_points[i+1][j].y,grid_points[i+1][j].z,grid_points[i+1][j+1].x,grid_points[i+1][j+1].y,grid_points[i+1][j+1].z,grid_points[i][j+1].x,grid_points[i][j+1].y,grid_points[i][j+1].z,nearColour,farColour);
+            }
+        }
+    }
 
     return true;
 }
