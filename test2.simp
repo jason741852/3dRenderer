@@ -1,0 +1,24 @@
+{
+   scale 8 2 1
+   rotate X -45
+   rotate Y 45
+   {
+      translate 0 -20 100
+      mesh box
+   }
+   {
+      rotate Z -90
+      translate -20 0 100
+      mesh box
+   }
+   {
+      rotate Z -180
+      translate 0 20 100
+      mesh box
+   }
+   {
+      rotate Z -270
+      translate 20 0 100
+      mesh box
+   }
+}

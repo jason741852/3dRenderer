@@ -48,12 +48,14 @@ OBJECTS_DIR   = ./
 SOURCES       = main.cpp \
 		client.cpp \
 		window361.cpp \
-		renderarea361.cpp moc_window361.cpp \
+		renderarea361.cpp \
+		LineDrawer.cpp moc_window361.cpp \
 		moc_renderarea361.cpp
 OBJECTS       = main.o \
 		client.o \
 		window361.o \
 		renderarea361.o \
+		LineDrawer.o \
 		moc_window361.o \
 		moc_renderarea361.o
 DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
@@ -280,7 +282,7 @@ qmake_all: FORCE
 
 dist: 
 	@test -d .tmp/qtqt1.0.0 || mkdir -p .tmp/qtqt1.0.0
-	$(COPY_FILE) --parents $(SOURCES) $(DIST) .tmp/qtqt1.0.0/ && $(COPY_FILE) --parents drawable.h pageturner.h client.h window361.h renderarea361.h .tmp/qtqt1.0.0/ && $(COPY_FILE) --parents main.cpp client.cpp window361.cpp renderarea361.cpp .tmp/qtqt1.0.0/ && (cd `dirname .tmp/qtqt1.0.0` && $(TAR) qtqt1.0.0.tar qtqt1.0.0 && $(COMPRESS) qtqt1.0.0.tar) && $(MOVE) `dirname .tmp/qtqt1.0.0`/qtqt1.0.0.tar.gz . && $(DEL_FILE) -r .tmp/qtqt1.0.0
+	$(COPY_FILE) --parents $(SOURCES) $(DIST) .tmp/qtqt1.0.0/ && $(COPY_FILE) --parents drawable.h pageturner.h client.h window361.h renderarea361.h LineDrawer.h .tmp/qtqt1.0.0/ && $(COPY_FILE) --parents main.cpp client.cpp window361.cpp renderarea361.cpp LineDrawer.cpp .tmp/qtqt1.0.0/ && (cd `dirname .tmp/qtqt1.0.0` && $(TAR) qtqt1.0.0.tar qtqt1.0.0 && $(COMPRESS) qtqt1.0.0.tar) && $(MOVE) `dirname .tmp/qtqt1.0.0`/qtqt1.0.0.tar.gz . && $(DEL_FILE) -r .tmp/qtqt1.0.0
 
 
 clean:compiler_clean 
@@ -667,6 +669,7 @@ main.o: main.cpp window361.h \
 		drawable.h \
 		renderarea361.h \
 		client.h \
+		LineDrawer.h \
 		/usr/include/qt5/QtWidgets/QApplication \
 		/usr/include/qt5/QtWidgets/qapplication.h \
 		/usr/include/qt5/QtCore/qcoreapplication.h \
@@ -752,7 +755,8 @@ client.o: client.cpp /usr/include/qt5/QtCore/QTextStream \
 		/usr/include/qt5/QtCore/qshareddata.h \
 		client.h \
 		drawable.h \
-		pageturner.h
+		pageturner.h \
+		LineDrawer.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o client.o client.cpp
 
 window361.o: window361.cpp /usr/include/qt5/QtWidgets/QGridLayout \
@@ -996,6 +1000,83 @@ renderarea361.o: renderarea361.cpp renderarea361.h \
 		/usr/include/qt5/QtGui/QPaintEvent \
 		/usr/include/qt5/QtWidgets/QSizePolicy
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o renderarea361.o renderarea361.cpp
+
+LineDrawer.o: LineDrawer.cpp /usr/include/qt5/QtCore/QTextStream \
+		/usr/include/qt5/QtCore/qtextstream.h \
+		/usr/include/qt5/QtCore/qiodevice.h \
+		/usr/include/qt5/QtCore/qglobal.h \
+		/usr/include/qt5/QtCore/qconfig.h \
+		/usr/include/qt5/QtCore/qfeatures.h \
+		/usr/include/qt5/QtCore/qsystemdetection.h \
+		/usr/include/qt5/QtCore/qprocessordetection.h \
+		/usr/include/qt5/QtCore/qcompilerdetection.h \
+		/usr/include/qt5/QtCore/qglobalstatic.h \
+		/usr/include/qt5/QtCore/qatomic.h \
+		/usr/include/qt5/QtCore/qbasicatomic.h \
+		/usr/include/qt5/QtCore/qatomic_bootstrap.h \
+		/usr/include/qt5/QtCore/qgenericatomic.h \
+		/usr/include/qt5/QtCore/qatomic_msvc.h \
+		/usr/include/qt5/QtCore/qatomic_integrity.h \
+		/usr/include/qt5/QtCore/qoldbasicatomic.h \
+		/usr/include/qt5/QtCore/qatomic_vxworks.h \
+		/usr/include/qt5/QtCore/qatomic_power.h \
+		/usr/include/qt5/QtCore/qatomic_alpha.h \
+		/usr/include/qt5/QtCore/qatomic_armv7.h \
+		/usr/include/qt5/QtCore/qatomic_armv6.h \
+		/usr/include/qt5/QtCore/qatomic_armv5.h \
+		/usr/include/qt5/QtCore/qatomic_bfin.h \
+		/usr/include/qt5/QtCore/qatomic_ia64.h \
+		/usr/include/qt5/QtCore/qatomic_mips.h \
+		/usr/include/qt5/QtCore/qatomic_s390.h \
+		/usr/include/qt5/QtCore/qatomic_sh4a.h \
+		/usr/include/qt5/QtCore/qatomic_sparc.h \
+		/usr/include/qt5/QtCore/qatomic_gcc.h \
+		/usr/include/qt5/QtCore/qatomic_x86.h \
+		/usr/include/qt5/QtCore/qatomic_cxx11.h \
+		/usr/include/qt5/QtCore/qatomic_unix.h \
+		/usr/include/qt5/QtCore/qmutex.h \
+		/usr/include/qt5/QtCore/qlogging.h \
+		/usr/include/qt5/QtCore/qflags.h \
+		/usr/include/qt5/QtCore/qtypeinfo.h \
+		/usr/include/qt5/QtCore/qtypetraits.h \
+		/usr/include/qt5/QtCore/qsysinfo.h \
+		/usr/include/qt5/QtCore/qobject.h \
+		/usr/include/qt5/QtCore/qobjectdefs.h \
+		/usr/include/qt5/QtCore/qnamespace.h \
+		/usr/include/qt5/QtCore/qobjectdefs_impl.h \
+		/usr/include/qt5/QtCore/qstring.h \
+		/usr/include/qt5/QtCore/qchar.h \
+		/usr/include/qt5/QtCore/qbytearray.h \
+		/usr/include/qt5/QtCore/qrefcount.h \
+		/usr/include/qt5/QtCore/qarraydata.h \
+		/usr/include/qt5/QtCore/qstringbuilder.h \
+		/usr/include/qt5/QtCore/qlist.h \
+		/usr/include/qt5/QtCore/qalgorithms.h \
+		/usr/include/qt5/QtCore/qiterator.h \
+		/usr/include/qt5/QtCore/qcoreevent.h \
+		/usr/include/qt5/QtCore/qscopedpointer.h \
+		/usr/include/qt5/QtCore/qmetatype.h \
+		/usr/include/qt5/QtCore/qvarlengtharray.h \
+		/usr/include/qt5/QtCore/qcontainerfwd.h \
+		/usr/include/qt5/QtCore/qisenum.h \
+		/usr/include/qt5/QtCore/qobject_impl.h \
+		/usr/include/qt5/QtCore/qlocale.h \
+		/usr/include/qt5/QtCore/qvariant.h \
+		/usr/include/qt5/QtCore/qmap.h \
+		/usr/include/qt5/QtCore/qpair.h \
+		/usr/include/qt5/QtCore/qdebug.h \
+		/usr/include/qt5/QtCore/qhash.h \
+		/usr/include/qt5/QtCore/qvector.h \
+		/usr/include/qt5/QtCore/qpoint.h \
+		/usr/include/qt5/QtCore/qset.h \
+		/usr/include/qt5/QtCore/qcontiguouscache.h \
+		/usr/include/qt5/QtCore/qstringlist.h \
+		/usr/include/qt5/QtCore/qdatastream.h \
+		/usr/include/qt5/QtCore/qregexp.h \
+		/usr/include/qt5/QtCore/qstringmatcher.h \
+		/usr/include/qt5/QtCore/qshareddata.h \
+		LineDrawer.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o LineDrawer.o LineDrawer.cpp
 
 moc_window361.o: moc_window361.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_window361.o moc_window361.cpp
