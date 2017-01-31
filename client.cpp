@@ -208,28 +208,28 @@ void Client::PageNumber(int page_location){
     }
     else if(page_location==3){
 
-        char* filename[] = {"page3.txt"};
+        char* filename[] = {"Custom_language_samples/page3.txt"};
         SimpDrawer(filename, 0xffffffff, 0x00000000);
     }
     else if(page_location==4){
 
-        char* filename[] = {"page4.txt"};
+        char* filename[] = {"Custom_language_samples/page4.txt"};
         SimpDrawer(filename, 0xff00CC66, 0xff008040);
     }
     else if(page_location==5){
-        char* filename[] = {"page5.txt"};
+        char* filename[] = {"Custom_language_samples/page5.txt"};
         SimpDrawer(filename, 0xffffffff, 0x00000000);
     }
     else if(page_location==6){
-        char* filename[] = {"test1.simp"};
+        char* filename[] = {"Custom_language_samples/test1.simp"};
         SimpDrawer(filename, 0xffffffff, 0x00000000);
     }
     else if(page_location==7){
-        char* filename[] = {"test2.simp"};
+        char* filename[] = {"Custom_language_samples/test2.simp"};
         SimpDrawer(filename, 0xffffffff, 0x00000000);
     }
     else if(page_location==8){
-        char* filename[] = {"test3.simp"};
+        char* filename[] = {"Custom_language_samples/test3.simp"};
         SimpDrawer(filename, 0xffffffff, 0x00000000);
     }
 }
@@ -618,4 +618,3 @@ bool Client::meshRenderer(const char* filename, Mat m, unsigned int nearColour, 
 
     return true;
 }
-

@@ -1,5 +1,0 @@
-3D object renderer
-all methods are located in client.h andclient.cpp
-
-all simp and mesh files are located inside the compressed folder
-general build is configured to be where all the files are
