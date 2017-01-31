@@ -5,7 +5,8 @@ All rendering algorithms are located in the LineDrawer.cpp
 
 This program can only be built with gcc compiler (Linux environment recommended).
 
-Screenshots:
+## Screenshots:
+
 ![alt tag](Sample_outputs/image1.png)
 ![alt tag](Sample_outputs/image2.png)
 ![alt tag](Sample_outputs/image3.png)
