@@ -1,9 +1,11 @@
 # 3D Object Renderer
-This program uses **qt** libraries to generate 3D objects on screen without using the openGL library. Objects are described by a custom language (samples can be found in the Custom_language_samples directory).
+This program uses **qt** libraries to generate 3D objects on screen without using the openGL library. Objects are described by a custom language. 
 
-All rendering algorithms are located in the LineDrawer.cpp
+## Further Information 
+All rendering algorithms are located in the LineDrawer.cpp, and samples of the custom language can be found in the Custom_language_samples directory. 
 
-This program can only be built with gcc compiler (Linux environment recommended).
+## Compile Instructions 
+The linux environment is recommended, and this program can only be built with the gcc compiler. 
 
 ## Screenshots:
 
